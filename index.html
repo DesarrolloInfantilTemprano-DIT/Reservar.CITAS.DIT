@@ -10,28 +10,24 @@
         :root {
             --primary: #6366f1; --primary-dark: #4f46e5;
             --secondary: #10b981; --warning: #f59e0b;
-            --danger: #ef4444; --bg: #f8fafc;
-            --card: rgba(255, 255, 255, 0.9);
+            --danger: #ef4444; --bg: #0f172a;
+            --card: rgba(255, 255, 255, 0.98);
         }
-
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             margin: 0; padding: 20px; color: #1e293b;
             min-height: 100vh; display: flex; justify-content: center;
         }
-
         .container {
             width: 100%; max-width: 550px;
-            background: var(--card); backdrop-filter: blur(10px);
-            border-radius: 24px; padding: 32px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-            border: 1px solid white;
+            background: var(--card); border-radius: 24px; padding: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
         }
-
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h2 { margin: 0; color: var(--primary-dark); font-weight: 800; font-size: 26px; }
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h2 { margin: 0; color: var(--primary-dark); font-weight: 800; }
         
+        /* Alerta Dinámica */
         .alert-box {
             padding: 15px; border-radius: 16px; font-size: 13px; font-weight: 600;
             margin-bottom: 20px; display: none; align-items: center; gap: 10px;
@@ -39,34 +35,31 @@
         }
         .alert-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
 
-        .form-section { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #f1f5f9; }
-        .section-title { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: block; }
+        .form-section { background: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #f1f5f9; }
+        .section-title { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 15px; display: block; }
 
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 5px; }
         input, select {
-            width: 100%; padding: 12px 16px; border-radius: 12px;
+            width: 100%; padding: 12px; border-radius: 12px;
             border: 2px solid #f1f5f9; font-size: 14px; font-weight: 600;
             transition: 0.2s; box-sizing: border-box;
         }
-        input:focus { border-color: var(--primary); outline: none; background: white; }
+        input:focus { border-color: var(--primary); outline: none; }
 
         .historial-box {
             background: #f8fafc; border-radius: 16px; padding: 15px;
             margin-bottom: 20px; display: none; border: 1px solid #e2e8f0;
         }
-        .historial-item {
-            font-size: 12px; display: flex; justify-content: space-between;
-            padding: 8px 0; border-bottom: 1px solid #f1f5f9;
-        }
+        .historial-item { font-size: 12px; display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
 
         .btn-submit {
-            width: 100%; padding: 16px; background: var(--primary); color: white;
+            width: 100%; padding: 18px; background: var(--primary); color: white;
             border: none; border-radius: 16px; font-weight: 800; font-size: 15px;
-            cursor: pointer; transition: 0.3s; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+            cursor: pointer; transition: 0.3s;
         }
-        .btn-submit:hover { transform: translateY(-2px); background: var(--primary-dark); }
-        .btn-submit:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
+        .btn-submit:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-submit:disabled { background: #cbd5e1; cursor: not-allowed; }
 
         .badge-adicional {
             display: none; background: #fff7ed; border: 1px solid #ffedd5;
@@ -74,72 +67,67 @@
         }
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .admin-trigger {
-            text-align: center; margin-top: 20px; font-size: 11px;
-            color: #94a3b8; cursor: pointer; text-decoration: underline;
-        }
+        .admin-trigger { text-align: center; margin-top: 20px; font-size: 11px; color: #94a3b8; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div style="width:60px; height:60px; background:var(--primary); border-radius:18px; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; color:white; font-size:24px;">
+        <div style="width:50px; height:50px; background:var(--primary); border-radius:15px; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; color:white; font-size:20px;">
             <i class="fa-solid fa-calendar-check"></i>
         </div>
         <h2>Sistema de Citas</h2>
-        <p style="font-size: 13px; color: #64748b; font-weight: 600;">C.S. Castillo Grande</p>
+        <p style="font-size: 12px; color: #64748b; font-weight: 700;">C.S. CASTILLO GRANDE</p>
     </div>
 
-    <!-- Alert de Alertas Médicas e Inasistencias -->
+    <!-- Alertas Médicas e Inasistencias -->
     <div id="alertInasistencia" class="alert-box alert-danger">
-        <i class="fa-solid fa-circle-exclamation"></i>
+        <i class="fa-solid fa-circle-exclamation fa-beat"></i>
         <span id="inaMsg"></span>
     </div>
 
+    <!-- Historial de Citas Local -->
     <div id="boxHistorial" class="historial-box">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span class="section-title" style="margin:0"><i class="fa-solid fa-clock-rotate-left"></i> Historial Local</span>
-        </div>
+        <span class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Historial del Niño</span>
         <div id="listaHistorial"></div>
     </div>
 
     <form id="citaForm">
         <div class="form-section">
-            <span class="section-title">Identificación del Niño</span>
+            <span class="section-title">Información del Niño</span>
             <div class="input-group">
-                <label>DNI DEL NIÑO</label>
-                <input type="number" name="DNI" id="dniInput" placeholder="Ingrese 8 dígitos" required>
+                <label>DNI</label>
+                <input type="number" name="DNI" id="dniInput" required oninput="if(this.value.length > 8) this.value = this.value.slice(0, 8);">
             </div>
             <div class="input-group">
-                <label>NOMBRE COMPLETO</label>
-                <input type="text" name="NOMBRE" id="nombreInput" readonly style="background:#f8fafc">
+                <label>NOMBRE</label>
+                <input type="text" name="NOMBRE" id="nombreInput" readonly style="background:#f1f5f9">
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div class="input-group">
                     <label>F. NACIMIENTO</label>
-                    <input type="text" name="FECHA_NACIMIENTO" id="nacInput" readonly style="background:#f8fafc">
+                    <input type="text" id="nacInput" readonly style="background:#f1f5f9">
                 </div>
                 <div class="input-group">
                     <label>CELULAR</label>
-                    <input type="text" name="CELULAR" id="telInput" readonly style="background:#f8fafc">
+                    <input type="text" name="CELULAR" id="telInput" readonly style="background:#f1f5f9">
                 </div>
             </div>
         </div>
 
         <div class="form-section">
-            <span class="section-title">Detalles de la Cita</span>
+            <span class="section-title">Detalles de la Atención</span>
             <div class="input-group">
                 <label>CONSULTORIO</label>
                 <select name="CONSULTORIO" id="consInput">
-                    <option value="CRED">🩺 CRED (Control Crecimiento)</option>
+                    <option value="CRED">🩺 CRED (Crecimiento y Desarrollo)</option>
                 </select>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div class="input-group">
-                    <label>FECHA DE CITA</label>
-                    <input type="date" name="FECHA_CITA" id="citaInput" required>
+                    <label>FECHA</label>
+                    <input type="date" id="citaInput" required>
                 </div>
                 <div class="input-group">
                     <label>TURNO</label>
@@ -151,13 +139,17 @@
             </div>
 
             <div id="boxAdicional" class="badge-adicional">
-                <label style="display:flex; align-items:center; gap:10px; color:#9a3412; cursor:pointer;">
+                <label style="display:flex; align-items:center; gap:8px; color:#9a3412; font-size:12px; cursor:pointer;">
                     <input type="checkbox" name="ES_ADICIONAL" id="checkAdicional" value="true">
                     <span><b>CUPOS AGOTADOS.</b> Registrar como adicional.</span>
                 </label>
             </div>
         </div>
 
+        <!-- Inputs ocultos para formatear fechas -->
+        <input type="hidden" name="FECHA_NACIMIENTO" id="finalNac">
+        <input type="hidden" name="FECHA_CITA" id="finalCita">
+        
         <button type="submit" id="btnEnviar" class="btn-submit">CONFIRMAR REGISTRO</button>
     </form>
 
@@ -165,62 +157,65 @@
 </div>
 
 <script>
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbx42a6CA8ej77eig9Cosl64IaiNpvCPnM_SoNxWDiLfIr_qv4yEQqYoSBHZY6d00GiloA/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbwrDxmtO8lkhzusVjWIOiqXY6pmgT5-Uhy2ICdZ5rcSg2kC_oh9jYa06zYse9xT7jFp/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
 
     let globalAnemia = "NO";
     let globalInasistencias = "NINGUNA";
 
-    function limpiarFecha(f) { return f ? f.split("T")[0] : ""; }
+    // Función para convertir fecha YYYY-MM-DD a DD/MM/YYYY
+    const aLatino = (f) => {
+        if(!f) return "";
+        const parts = f.split("-");
+        return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : f;
+    };
 
     document.getElementById('dniInput').addEventListener('input', async (e) => {
         const dni = e.target.value;
         if(dni.length === 8) {
             limpiarAlerta();
             try {
+                // 1. CONSULTAR MAPA DIT
                 const respMapa = await fetch(SCRIPT_MAPA);
                 const dataMapa = await respMapa.json();
-                const nino = dataMapa.find(x => x.dniHijo == dni);
+                const n = dataMapa.find(x => x.dniHijo == dni);
 
-                if(nino) {
-                    document.getElementById('nombreInput').value = nino.nombreHijo;
-                    document.getElementById('nacInput').value = limpiarFecha(nino.nacimientoHijo);
-                    document.getElementById('telInput').value = nino.celular;
+                if(n) {
+                    document.getElementById('nombreInput').value = n.nombreHijo;
+                    const fNac = n.nacimientoHijo ? n.nacimientoHijo.split("T")[0] : "";
+                    document.getElementById('nacInput').value = aLatino(fNac);
+                    document.getElementById('telInput').value = n.celular;
                     
                     let avisos = [];
-                    // Detectar Anemia
-                    if(nino.anemia === "SI" || nino.dxAnemia === "ANEMIA") {
-                        globalAnemia = "SI";
-                        avisos.push("🔴 ALERTA: NIÑO ANÉMICO");
-                    } else { globalAnemia = "NO"; }
-
-                    // Detectar Inasistencias
+                    // Alerta Anemia
+                    if(n.anemia === "SI" || n.dxAnemia === "ANEMIA") {
+                        globalAnemia = "SI"; avisos.push("🔴 ALERTA: NIÑO CON ANEMIA");
+                    }
+                    // Alerta Inasistencias
                     let inas = [];
-                    if(nino.citaFaltante) inas.push("ANEMIA (" + nino.citaFaltante + ")");
-                    if(nino.citaCred) inas.push("CRED (" + nino.citaCred + ")");
-                    if(nino.citaVacuna) inas.push("VACUNAS (" + nino.citaVacuna + ")");
+                    if(n.citaFaltante) inas.push("ANEMIA (" + n.citaFaltante + ")");
+                    if(n.citaCred) inas.push("CRED (" + n.citaCred + ")");
+                    if(n.citaVacuna) inas.push("VACUNAS (" + n.citaVacuna + ")");
                     
                     if(inas.length > 0) {
                         globalInasistencias = inas.join(" | ");
                         avisos.push("⚠️ PENDIENTES: " + globalInasistencias);
-                    } else { globalInasistencias = "AL DÍA"; }
-
+                    }
                     if(avisos.length > 0) {
-                        const alertBox = document.getElementById('alertInasistencia');
-                        alertBox.style.display = 'flex';
+                        document.getElementById('alertInasistencia').style.display = 'flex';
                         document.getElementById('inaMsg').innerHTML = avisos.join("<br>");
                     }
                 } else {
                     habilitarManual();
-                    alert("Niño no encontrado en Mapa DIT. Ingrese datos manualmente.");
                 }
 
-                const respHist = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
-                const dataHist = await respHist.json();
-                if(dataHist.encontrado) {
+                // 2. CONSULTAR HISTORIAL LOCAL
+                const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
+                const dH = await rH.json();
+                if(dH.encontrado) {
                     const list = document.getElementById('listaHistorial');
                     list.innerHTML = '';
-                    dataHist.historial.reverse().slice(0,3).forEach(c => {
+                    dH.historial.reverse().slice(0,3).forEach(c => {
                         list.innerHTML += `<div class="historial-item"><span>${c.fecha} - ${c.turno}</span> <b>${c.consultorio}</b></div>`;
                     });
                     document.getElementById('boxHistorial').style.display = 'block';
@@ -232,32 +227,21 @@
     const validarTodo = async () => {
         const fecha = document.getElementById('citaInput').value;
         const turno = document.getElementById('turnoInput').value;
+        const cons = document.getElementById('consInput').value;
         if(!fecha) return;
 
+        // Validar Fines de Semana
         const dia = new Date(fecha + 'T00:00:00').getDay();
-        if(dia === 0) {
-            alert("❌ Domingos no hay atención.");
-            document.getElementById('citaInput').value = "";
-            return;
-        }
+        if(dia === 0) { alert("Domingos no hay atención"); document.getElementById('citaInput').value=""; return; }
+        if(dia === 6 && turno === "TARDE") { alert("Sábados solo turno Mañana"); document.getElementById('turnoInput').value="MAÑANA"; return; }
 
-        if(dia === 6 && turno === "TARDE") {
-            alert("Sábados solo turno mañana.");
-            document.getElementById('turnoInput').value = "MAÑANA";
-            return;
-        }
-
-        const resp = await fetch(`${SCRIPT_CITAS}?validarCupo=true&fecha=${fecha}&turno=${turno}&consultorio=CRED`);
-        const data = await resp.json();
+        const fLatino = aLatino(fecha);
+        const r = await fetch(`${SCRIPT_CITAS}?validarCupo=true&fecha=${fLatino}&turno=${turno}&consultorio=${cons}`);
+        const d = await r.json();
         const limite = (turno === "MAÑANA") ? 18 : 6;
         
-        if(data.ocupados >= limite) {
-            document.getElementById('boxAdicional').style.display = 'block';
-            document.getElementById('btnEnviar').innerText = "REGISTRAR COMO ADICIONAL";
-        } else {
-            document.getElementById('boxAdicional').style.display = 'none';
-            document.getElementById('btnEnviar').innerText = "CONFIRMAR REGISTRO";
-        }
+        document.getElementById('boxAdicional').style.display = (d.ocupados >= limite) ? 'block' : 'none';
+        document.getElementById('btnEnviar').innerText = (d.ocupados >= limite) ? "REGISTRAR COMO ADICIONAL" : "CONFIRMAR REGISTRO";
     };
 
     document.getElementById('citaInput').addEventListener('change', validarTodo);
@@ -266,27 +250,28 @@
     document.getElementById('citaForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnEnviar');
-        btn.disabled = true;
-        btn.innerText = "ENVIANDO...";
+        btn.disabled = true; btn.innerText = "REGISTRANDO...";
 
-        const formData = new FormData(this);
-        formData.append("ALERTA_ANEMIA", globalAnemia);
-        formData.append("ALERTA_INASISTENCIA", globalInasistencias);
+        // Formateamos las fechas finales para el Excel
+        document.getElementById('finalNac').value = document.getElementById('nacInput').value;
+        document.getElementById('finalCita').value = aLatino(document.getElementById('citaInput').value);
 
-        fetch(SCRIPT_CITAS, { method: 'POST', body: formData })
-        .then(() => {
-            alert("REGISTRO EXITOSO");
-            location.reload();
+        const fD = new FormData(this);
+        fD.append("ALERTA_ANEMIA", globalAnemia);
+        fD.append("ALERTA_INASISTENCIA", globalInasistencias);
+
+        fetch(SCRIPT_CITAS, { method: 'POST', body: fD }).then(() => { 
+            alert("REGISTRO EXITOSO EN CASTILLO GRANDE"); 
+            location.reload(); 
         });
     });
 
     function habilitarManual() {
-        document.querySelectorAll('#nombreInput, #telInput').forEach(el => {
-            el.readOnly = false; el.style.background = "white";
+        alert("DNI no encontrado en Mapa DIT. Ingrese datos manualmente.");
+        document.querySelectorAll('#nombreInput, #telInput, #nacInput').forEach(el => { 
+            el.readOnly = false; el.style.background = "white"; 
         });
-        document.getElementById('nacInput').type = "date";
-        document.getElementById('nacInput').readOnly = false;
-        document.getElementById('nacInput').style.background = "white";
+        document.getElementById('nacInput').placeholder = "DD/MM/YYYY";
     }
 
     function limpiarAlerta() {
@@ -296,14 +281,12 @@
     }
 
     function abrirModuloAdmin() {
-        if(prompt("Clave Admin:") === "2026_DIT@") {
-            const select = document.getElementById('consInput');
+        if(prompt("Clave de Acceso:") === "2026_DIT@") {
+            const s = document.getElementById('consInput');
             ["NUTRICIÓN", "ODONTOLOGÍA", "PSICOLOGÍA"].forEach(e => {
-                let opt = document.createElement("option");
-                opt.value = e; opt.text = "🏥 " + e;
-                select.add(opt);
+                let o = document.createElement("option"); o.value = e; o.text = "🏥 " + e; s.add(o);
             });
-            alert("Especialidades activas.");
+            alert("Especialidades adicionales activadas correctamente.");
         }
     }
 </script>
