@@ -25,7 +25,7 @@
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
         }
 
-        /* MODAL PERSONALIZADO (Evita el alert de GitHub) */
+        /* MODAL PERSONALIZADO */
         .modal-overlay {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(15, 23, 42, 0.8); z-index: 9999; align-items: center; justify-content: center;
@@ -126,9 +126,23 @@
                     <input type="text" id="nacInput" readonly style="background:#f1f5f9" maxlength="10">
                 </div>
                 <div class="input-group">
+                    <label>EDAD ACTUAL</label>
+                    <input type="text" name="EDAD" id="edadInput" readonly style="background:#f1f5f9; color:var(--primary-dark); font-weight:800;">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="input-group">
+                    <label>HISTORIA CLÍNICA</label>
+                    <input type="text" name="HC" id="hcInput" readonly style="background:#f1f5f9" placeholder="N° HC">
+                </div>
+                <div class="input-group">
                     <label>CELULAR</label>
                     <input type="text" name="CELULAR" id="telInput" readonly style="background:#f1f5f9">
                 </div>
+            </div>
+            <div class="input-group">
+                <label>SECTOR / DIRECCIÓN</label>
+                <input type="text" name="SECTOR" id="sectorInput" readonly style="background:#f1f5f9" placeholder="Sector de vivienda">
             </div>
         </div>
 
@@ -164,6 +178,7 @@
 
         <input type="hidden" name="FECHA_NACIMIENTO" id="finalNac">
         <input type="hidden" name="FECHA_CITA" id="finalCita">
+        <input type="hidden" name="AVISO_ACTUALIZACION" id="finalAviso">
         
         <button type="submit" id="btnEnviar" class="btn-submit">CONFIRMAR REGISTRO</button>
     </form>
@@ -172,13 +187,12 @@
 </div>
 
 <script>
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbzryTXYTosMo9u8Gam25j2mnQ389ETX_Mst9FCDGmtheqKP9XQn2PThcKqwuPI6gLe8uQ/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbw8LO9jD7MG8ksjMah0QNWvV6_GJL9dRdWy-tFCuCFz1RbKqA2O_m41jLmh4zeAC0jwlQ/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
 
     let globalAnemia = "NO";
     let globalInasistencias = "NINGUNA";
 
-    // Función para Modal Personalizado
     function lanzarModal(texto, icono='ℹ️') {
         document.getElementById('modalText').innerText = texto;
         document.getElementById('modalIcon').innerText = icono;
@@ -186,7 +200,20 @@
     }
     function cerrarModal() { document.getElementById('modalCustom').style.display = 'none'; }
 
-    // Máscara de Fecha DD/MM/YYYY
+    // Función para calcular edad
+    function calcularEdad(fechaStr) {
+        if(!fechaStr || fechaStr.length < 10) return "";
+        const [d, m, y] = fechaStr.split("/");
+        const nac = new Date(y, m - 1, d);
+        const hoy = new Date();
+        let totalMeses = (hoy.getFullYear() - nac.getFullYear()) * 12 + (hoy.getMonth() - nac.getMonth());
+        if (hoy.getDate() < nac.getDate()) totalMeses--;
+        if(totalMeses < 0) return "F. Inválida";
+        if(totalMeses < 12) return totalMeses + " Meses";
+        return Math.floor(totalMeses / 12) + " Años, " + (totalMeses % 12) + " Meses";
+    }
+
+    // Máscara de Fecha y cálculo de edad manual
     document.getElementById('nacInput').addEventListener('input', function(e) {
         if(this.readOnly) return;
         let v = this.value.replace(/\D/g,'');
@@ -194,6 +221,7 @@
         if(v.length >= 5) v = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4);
         else if(v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
         this.value = v;
+        if(v.length === 10) document.getElementById('edadInput').value = calcularEdad(v);
     });
 
     const aLatino = (f) => {
@@ -217,8 +245,12 @@
                 if(n) {
                     document.getElementById('nombreInput').value = n.nombreHijo;
                     const fNac = n.nacimientoHijo ? n.nacimientoHijo.split("T")[0] : "";
-                    document.getElementById('nacInput').value = aLatino(fNac);
+                    const fLatina = aLatino(fNac);
+                    document.getElementById('nacInput').value = fLatina;
+                    document.getElementById('edadInput').value = calcularEdad(fLatina);
                     document.getElementById('telInput').value = n.celular;
+                    document.getElementById('hcInput').value = n.hc || "";
+                    document.getElementById('sectorInput').value = n.sector || "";
                     
                     if(n.anemia === "SI" || n.dxAnemia === "ANEMIA") {
                         globalAnemia = "SI"; avisos.push("🔴 ALERTA: NIÑO CON ANEMIA");
@@ -241,10 +273,17 @@
                 const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dH = await rH.json();
                 
-                // Si el Script dice que está en la hoja Anemicos
                 if(dH.esAnemico) {
                     globalAnemia = "SI"; 
                     if(!avisos.includes("🔴 ALERTA: NIÑO CON ANEMIA")) avisos.push("🔴 ALERTA: REGISTRADO EN PADRÓN ANÉMICOS");
+                }
+
+                // Lógica de actualización de datos si NO está en Mapa DIT
+                if(!n) {
+                    const totalAvisos = (dH.vecesAdvertido || 0) + 1;
+                    const msgAct = `Mamita deberá actualizar sus datos para la próxima cita. (Aviso: ${totalAvisos})`;
+                    avisos.push("📝 " + msgAct);
+                    document.getElementById('finalAviso').value = `ACTUALIZAR DATOS (${totalAvisos}° VEZ)`;
                 }
 
                 if(avisos.length > 0) {
@@ -264,12 +303,9 @@
         }
     });
 
-    // ... (Mantener las funciones validarTodo, abrirModuloAdmin y submit originales)
-    // Pero en el submit y habilitarManual, cambia alert() por lanzarModal()
-    
     function habilitarManual() {
-        lanzarModal("Niño no encontrado. Ingrese datos manualmente.", "📝");
-        document.querySelectorAll('#nombreInput, #telInput, #nacInput').forEach(el => { 
+        lanzarModal("DNI no en Mapa DIT. Ingrese datos manualmente y solicite actualización.", "📝");
+        document.querySelectorAll('#nombreInput, #telInput, #nacInput, #hcInput, #sectorInput').forEach(el => { 
             el.readOnly = false; el.style.background = "white"; 
         });
         document.getElementById('nacInput').placeholder = "DD/MM/YYYY";
@@ -308,12 +344,14 @@
         document.getElementById('boxAdicional').style.display = (d.ocupados >= limite) ? 'block' : 'none';
         document.getElementById('btnEnviar').innerText = (d.ocupados >= limite) ? "REGISTRAR COMO ADICIONAL" : "CONFIRMAR REGISTRO";
     };
+    
     document.getElementById('citaInput').addEventListener('change', validarTodo);
     document.getElementById('turnoInput').addEventListener('change', validarTodo);
     
     function limpiarAlerta() {
         document.getElementById('alertInasistencia').style.display = 'none';
         document.getElementById('boxHistorial').style.display = 'none';
+        document.getElementById('finalAviso').value = "";
         globalAnemia = "NO"; globalInasistencias = "NINGUNA";
     }
 
