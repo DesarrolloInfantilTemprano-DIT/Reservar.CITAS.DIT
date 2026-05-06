@@ -24,10 +24,20 @@
             background: var(--card); border-radius: 24px; padding: 32px;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
         }
+
+        /* MODAL PERSONALIZADO (Evita el alert de GitHub) */
+        .modal-overlay {
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(15, 23, 42, 0.8); z-index: 9999; align-items: center; justify-content: center;
+        }
+        .modal-box {
+            background: white; padding: 25px; border-radius: 20px; max-width: 320px; 
+            width: 85%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+        }
+
         .header { text-align: center; margin-bottom: 25px; }
         .header h2 { margin: 0; color: var(--primary-dark); font-weight: 800; }
         
-        /* Alerta Dinámica */
         .alert-box {
             padding: 15px; border-radius: 16px; font-size: 13px; font-weight: 600;
             margin-bottom: 20px; display: none; align-items: center; gap: 10px;
@@ -72,6 +82,14 @@
 </head>
 <body>
 
+<div id="modalCustom" class="modal-overlay">
+    <div class="modal-box">
+        <div id="modalIcon" style="font-size: 40px; margin-bottom: 15px;"></div>
+        <p id="modalText" style="font-weight: 700; color: #1e293b; margin-bottom: 20px;"></p>
+        <button onclick="cerrarModal()" style="background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 10px; font-weight: 800; cursor: pointer;">Aceptar</button>
+    </div>
+</div>
+
 <div class="container">
     <div class="header">
         <div style="width:50px; height:50px; background:var(--primary); border-radius:15px; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; color:white; font-size:20px;">
@@ -81,13 +99,11 @@
         <p style="font-size: 12px; color: #64748b; font-weight: 700;">C.S. CASTILLO GRANDE</p>
     </div>
 
-    <!-- Alertas Médicas e Inasistencias -->
     <div id="alertInasistencia" class="alert-box alert-danger">
         <i class="fa-solid fa-circle-exclamation fa-beat"></i>
         <span id="inaMsg"></span>
     </div>
 
-    <!-- Historial de Citas Local -->
     <div id="boxHistorial" class="historial-box">
         <span class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Historial del Niño</span>
         <div id="listaHistorial"></div>
@@ -107,7 +123,7 @@
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div class="input-group">
                     <label>F. NACIMIENTO</label>
-                    <input type="text" id="nacInput" readonly style="background:#f1f5f9">
+                    <input type="text" id="nacInput" readonly style="background:#f1f5f9" maxlength="10">
                 </div>
                 <div class="input-group">
                     <label>CELULAR</label>
@@ -146,7 +162,6 @@
             </div>
         </div>
 
-        <!-- Inputs ocultos para formatear fechas -->
         <input type="hidden" name="FECHA_NACIMIENTO" id="finalNac">
         <input type="hidden" name="FECHA_CITA" id="finalCita">
         
@@ -157,13 +172,30 @@
 </div>
 
 <script>
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbwrDxmtO8lkhzusVjWIOiqXY6pmgT5-Uhy2ICdZ5rcSg2kC_oh9jYa06zYse9xT7jFp/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbzryTXYTosMo9u8Gam25j2mnQ389ETX_Mst9FCDGmtheqKP9XQn2PThcKqwuPI6gLe8uQ/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
 
     let globalAnemia = "NO";
     let globalInasistencias = "NINGUNA";
 
-    // Función para convertir fecha YYYY-MM-DD a DD/MM/YYYY
+    // Función para Modal Personalizado
+    function lanzarModal(texto, icono='ℹ️') {
+        document.getElementById('modalText').innerText = texto;
+        document.getElementById('modalIcon').innerText = icono;
+        document.getElementById('modalCustom').style.display = 'flex';
+    }
+    function cerrarModal() { document.getElementById('modalCustom').style.display = 'none'; }
+
+    // Máscara de Fecha DD/MM/YYYY
+    document.getElementById('nacInput').addEventListener('input', function(e) {
+        if(this.readOnly) return;
+        let v = this.value.replace(/\D/g,'');
+        if(v.length > 8) v = v.slice(0,8);
+        if(v.length >= 5) v = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4);
+        else if(v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+        this.value = v;
+    });
+
     const aLatino = (f) => {
         if(!f) return "";
         const parts = f.split("-");
@@ -180,18 +212,18 @@
                 const dataMapa = await respMapa.json();
                 const n = dataMapa.find(x => x.dniHijo == dni);
 
+                let avisos = [];
+
                 if(n) {
                     document.getElementById('nombreInput').value = n.nombreHijo;
                     const fNac = n.nacimientoHijo ? n.nacimientoHijo.split("T")[0] : "";
                     document.getElementById('nacInput').value = aLatino(fNac);
                     document.getElementById('telInput').value = n.celular;
                     
-                    let avisos = [];
-                    // Alerta Anemia
                     if(n.anemia === "SI" || n.dxAnemia === "ANEMIA") {
                         globalAnemia = "SI"; avisos.push("🔴 ALERTA: NIÑO CON ANEMIA");
                     }
-                    // Alerta Inasistencias
+                    
                     let inas = [];
                     if(n.citaFaltante) inas.push("ANEMIA (" + n.citaFaltante + ")");
                     if(n.citaCred) inas.push("CRED (" + n.citaCred + ")");
@@ -201,17 +233,25 @@
                         globalInasistencias = inas.join(" | ");
                         avisos.push("⚠️ PENDIENTES: " + globalInasistencias);
                     }
-                    if(avisos.length > 0) {
-                        document.getElementById('alertInasistencia').style.display = 'flex';
-                        document.getElementById('inaMsg').innerHTML = avisos.join("<br>");
-                    }
                 } else {
                     habilitarManual();
                 }
 
-                // 2. CONSULTAR HISTORIAL LOCAL
+                // 2. CONSULTAR HISTORIAL Y HOJA ANEMICOS EXTRA
                 const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dH = await rH.json();
+                
+                // Si el Script dice que está en la hoja Anemicos
+                if(dH.esAnemico) {
+                    globalAnemia = "SI"; 
+                    if(!avisos.includes("🔴 ALERTA: NIÑO CON ANEMIA")) avisos.push("🔴 ALERTA: REGISTRADO EN PADRÓN ANÉMICOS");
+                }
+
+                if(avisos.length > 0) {
+                    document.getElementById('alertInasistencia').style.display = 'flex';
+                    document.getElementById('inaMsg').innerHTML = avisos.join("<br>");
+                }
+
                 if(dH.encontrado) {
                     const list = document.getElementById('listaHistorial');
                     list.innerHTML = '';
@@ -224,35 +264,22 @@
         }
     });
 
-    const validarTodo = async () => {
-        const fecha = document.getElementById('citaInput').value;
-        const turno = document.getElementById('turnoInput').value;
-        const cons = document.getElementById('consInput').value;
-        if(!fecha) return;
-
-        // Validar Fines de Semana
-        const dia = new Date(fecha + 'T00:00:00').getDay();
-        if(dia === 0) { alert("Domingos no hay atención"); document.getElementById('citaInput').value=""; return; }
-        if(dia === 6 && turno === "TARDE") { alert("Sábados solo turno Mañana"); document.getElementById('turnoInput').value="MAÑANA"; return; }
-
-        const fLatino = aLatino(fecha);
-        const r = await fetch(`${SCRIPT_CITAS}?validarCupo=true&fecha=${fLatino}&turno=${turno}&consultorio=${cons}`);
-        const d = await r.json();
-        const limite = (turno === "MAÑANA") ? 18 : 6;
-        
-        document.getElementById('boxAdicional').style.display = (d.ocupados >= limite) ? 'block' : 'none';
-        document.getElementById('btnEnviar').innerText = (d.ocupados >= limite) ? "REGISTRAR COMO ADICIONAL" : "CONFIRMAR REGISTRO";
-    };
-
-    document.getElementById('citaInput').addEventListener('change', validarTodo);
-    document.getElementById('turnoInput').addEventListener('change', validarTodo);
+    // ... (Mantener las funciones validarTodo, abrirModuloAdmin y submit originales)
+    // Pero en el submit y habilitarManual, cambia alert() por lanzarModal()
+    
+    function habilitarManual() {
+        lanzarModal("Niño no encontrado. Ingrese datos manualmente.", "📝");
+        document.querySelectorAll('#nombreInput, #telInput, #nacInput').forEach(el => { 
+            el.readOnly = false; el.style.background = "white"; 
+        });
+        document.getElementById('nacInput').placeholder = "DD/MM/YYYY";
+    }
 
     document.getElementById('citaForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnEnviar');
         btn.disabled = true; btn.innerText = "REGISTRANDO...";
 
-        // Formateamos las fechas finales para el Excel
         document.getElementById('finalNac').value = document.getElementById('nacInput').value;
         document.getElementById('finalCita').value = aLatino(document.getElementById('citaInput').value);
 
@@ -261,19 +288,29 @@
         fD.append("ALERTA_INASISTENCIA", globalInasistencias);
 
         fetch(SCRIPT_CITAS, { method: 'POST', body: fD }).then(() => { 
-            alert("REGISTRO EXITOSO EN CASTILLO GRANDE"); 
-            location.reload(); 
+            lanzarModal("REGISTRO EXITOSO EN CASTILLO GRANDE", "✅"); 
+            setTimeout(() => location.reload(), 2000); 
         });
     });
 
-    function habilitarManual() {
-        alert("DNI no encontrado en Mapa DIT. Ingrese datos manualmente.");
-        document.querySelectorAll('#nombreInput, #telInput, #nacInput').forEach(el => { 
-            el.readOnly = false; el.style.background = "white"; 
-        });
-        document.getElementById('nacInput').placeholder = "DD/MM/YYYY";
-    }
-
+    const validarTodo = async () => {
+        const fecha = document.getElementById('citaInput').value;
+        const turno = document.getElementById('turnoInput').value;
+        const cons = document.getElementById('consInput').value;
+        if(!fecha) return;
+        const dia = new Date(fecha + 'T00:00:00').getDay();
+        if(dia === 0) { lanzarModal("Domingos no hay atención", "❌"); document.getElementById('citaInput').value=""; return; }
+        if(dia === 6 && turno === "TARDE") { lanzarModal("Sábados solo turno Mañana", "⚠️"); document.getElementById('turnoInput').value="MAÑANA"; return; }
+        const fLatino = aLatino(fecha);
+        const r = await fetch(`${SCRIPT_CITAS}?validarCupo=true&fecha=${fLatino}&turno=${turno}&consultorio=${cons}`);
+        const d = await r.json();
+        const limite = (turno === "MAÑANA") ? 18 : 6;
+        document.getElementById('boxAdicional').style.display = (d.ocupados >= limite) ? 'block' : 'none';
+        document.getElementById('btnEnviar').innerText = (d.ocupados >= limite) ? "REGISTRAR COMO ADICIONAL" : "CONFIRMAR REGISTRO";
+    };
+    document.getElementById('citaInput').addEventListener('change', validarTodo);
+    document.getElementById('turnoInput').addEventListener('change', validarTodo);
+    
     function limpiarAlerta() {
         document.getElementById('alertInasistencia').style.display = 'none';
         document.getElementById('boxHistorial').style.display = 'none';
@@ -286,7 +323,7 @@
             ["NUTRICIÓN", "ODONTOLOGÍA", "PSICOLOGÍA"].forEach(e => {
                 let o = document.createElement("option"); o.value = e; o.text = "🏥 " + e; s.add(o);
             });
-            alert("Especialidades adicionales activadas correctamente.");
+            lanzarModal("Especialidades activadas.", "⚙️");
         }
     }
 </script>
