@@ -25,7 +25,6 @@
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
         }
 
-        /* MODAL PERSONALIZADO */
         .modal-overlay {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(15, 23, 42, 0.8); z-index: 9999; align-items: center; justify-content: center;
@@ -56,6 +55,7 @@
             transition: 0.2s; box-sizing: border-box;
         }
         input:focus { border-color: var(--primary); outline: none; }
+        input:required { border-left: 4px solid var(--danger); }
 
         .historial-box {
             background: #f8fafc; border-radius: 16px; padding: 15px;
@@ -113,55 +113,55 @@
         <div class="form-section">
             <span class="section-title">Información del Niño</span>
             <div class="input-group">
-                <label>DNI</label>
+                <label>DNI *</label>
                 <input type="number" name="DNI" id="dniInput" required oninput="if(this.value.length > 8) this.value = this.value.slice(0, 8);">
             </div>
             <div class="input-group">
-                <label>NOMBRE</label>
-                <input type="text" name="NOMBRE" id="nombreInput" readonly style="background:#f1f5f9">
+                <label>NOMBRE *</label>
+                <input type="text" name="NOMBRE" id="nombreInput" required readonly style="background:#f1f5f9">
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div class="input-group">
-                    <label>F. NACIMIENTO</label>
-                    <input type="text" id="nacInput" readonly style="background:#f1f5f9" maxlength="10">
+                    <label>F. NACIMIENTO *</label>
+                    <input type="text" id="nacInput" required readonly style="background:#f1f5f9" maxlength="10" placeholder="DD/MM/YYYY">
                 </div>
                 <div class="input-group">
-                    <label>EDAD ACTUAL</label>
+                    <label>EDAD A LA CITA</label>
                     <input type="text" name="EDAD" id="edadInput" readonly style="background:#f1f5f9; color:var(--primary-dark); font-weight:800;">
                 </div>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div class="input-group">
-                    <label>HISTORIA CLÍNICA</label>
-                    <input type="text" name="HC" id="hcInput" readonly style="background:#f1f5f9" placeholder="N° HC">
+                    <label>HISTORIA CLÍNICA *</label>
+                    <input type="text" name="HC" id="hcInput" required readonly style="background:#f1f5f9" placeholder="N° HC">
                 </div>
                 <div class="input-group">
-                    <label>CELULAR</label>
-                    <input type="text" name="CELULAR" id="telInput" readonly style="background:#f1f5f9">
+                    <label>CELULAR *</label>
+                    <input type="text" name="CELULAR" id="telInput" required readonly style="background:#f1f5f9">
                 </div>
             </div>
             <div class="input-group">
-                <label>SECTOR / DIRECCIÓN</label>
-                <input type="text" name="SECTOR" id="sectorInput" readonly style="background:#f1f5f9" placeholder="Sector de vivienda">
+                <label>SECTOR / DIRECCIÓN *</label>
+                <input type="text" name="SECTOR" id="sectorInput" required readonly style="background:#f1f5f9" placeholder="Sector de vivienda">
             </div>
         </div>
 
         <div class="form-section">
             <span class="section-title">Detalles de la Atención</span>
             <div class="input-group">
-                <label>CONSULTORIO</label>
-                <select name="CONSULTORIO" id="consInput">
+                <label>CONSULTORIO *</label>
+                <select name="CONSULTORIO" id="consInput" required>
                     <option value="CRED">🩺 CRED (Crecimiento y Desarrollo)</option>
                 </select>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div class="input-group">
-                    <label>FECHA</label>
+                    <label>FECHA CITA *</label>
                     <input type="date" id="citaInput" required>
                 </div>
                 <div class="input-group">
-                    <label>TURNO</label>
-                    <select name="TURNO" id="turnoInput">
+                    <label>TURNO *</label>
+                    <select name="TURNO" id="turnoInput" required>
                         <option value="MAÑANA">MAÑANA (18 Cupos)</option>
                         <option value="TARDE">TARDE (6 Cupos)</option>
                     </select>
@@ -200,20 +200,38 @@
     }
     function cerrarModal() { document.getElementById('modalCustom').style.display = 'none'; }
 
-    // Función para calcular edad
-    function calcularEdad(fechaStr) {
-        if(!fechaStr || fechaStr.length < 10) return "";
-        const [d, m, y] = fechaStr.split("/");
+    // NUEVO: Función para calcular edad COMPARANDO CON FECHA DE CITA
+    function calcularEdadCita() {
+        const fechaNacStr = document.getElementById('nacInput').value;
+        const fechaCitaStr = document.getElementById('citaInput').value; // Formato YYYY-MM-DD
+
+        if(!fechaNacStr || fechaNacStr.length < 10 || !fechaCitaStr) {
+            document.getElementById('edadInput').value = "";
+            return;
+        }
+
+        const [d, m, y] = fechaNacStr.split("/");
         const nac = new Date(y, m - 1, d);
-        const hoy = new Date();
-        let totalMeses = (hoy.getFullYear() - nac.getFullYear()) * 12 + (hoy.getMonth() - nac.getMonth());
-        if (hoy.getDate() < nac.getDate()) totalMeses--;
-        if(totalMeses < 0) return "F. Inválida";
-        if(totalMeses < 12) return totalMeses + " Meses";
-        return Math.floor(totalMeses / 12) + " Años, " + (totalMeses % 12) + " Meses";
+        const cita = new Date(fechaCitaStr + "T00:00:00");
+
+        let totalMeses = (cita.getFullYear() - nac.getFullYear()) * 12 + (cita.getMonth() - nac.getMonth());
+        if (cita.getDate() < nac.getDate()) totalMeses--;
+
+        if(totalMeses < 0) {
+            document.getElementById('edadInput').value = "Fecha Cita Inválida";
+            return;
+        }
+        
+        if(totalMeses < 12) {
+            document.getElementById('edadInput').value = totalMeses + " Meses";
+        } else {
+            const anios = Math.floor(totalMeses / 12);
+            const mesesResto = totalMeses % 12;
+            document.getElementById('edadInput').value = `${anios} Años, ${mesesResto} Meses`;
+        }
     }
 
-    // Máscara de Fecha y cálculo de edad manual
+    // Máscara de fecha y trigger de edad
     document.getElementById('nacInput').addEventListener('input', function(e) {
         if(this.readOnly) return;
         let v = this.value.replace(/\D/g,'');
@@ -221,8 +239,11 @@
         if(v.length >= 5) v = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4);
         else if(v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
         this.value = v;
-        if(v.length === 10) document.getElementById('edadInput').value = calcularEdad(v);
+        calcularEdadCita();
     });
+
+    // Trigger de edad cuando cambia la fecha de cita
+    document.getElementById('citaInput').addEventListener('change', calcularEdadCita);
 
     const aLatino = (f) => {
         if(!f) return "";
@@ -235,7 +256,6 @@
         if(dni.length === 8) {
             limpiarAlerta();
             try {
-                // 1. CONSULTAR MAPA DIT
                 const respMapa = await fetch(SCRIPT_MAPA);
                 const dataMapa = await respMapa.json();
                 const n = dataMapa.find(x => x.dniHijo == dni);
@@ -247,7 +267,6 @@
                     const fNac = n.nacimientoHijo ? n.nacimientoHijo.split("T")[0] : "";
                     const fLatina = aLatino(fNac);
                     document.getElementById('nacInput').value = fLatina;
-                    document.getElementById('edadInput').value = calcularEdad(fLatina);
                     document.getElementById('telInput').value = n.celular;
                     document.getElementById('hcInput').value = n.hc || "";
                     document.getElementById('sectorInput').value = n.sector || "";
@@ -265,11 +284,11 @@
                         globalInasistencias = inas.join(" | ");
                         avisos.push("⚠️ PENDIENTES: " + globalInasistencias);
                     }
+                    calcularEdadCita();
                 } else {
                     habilitarManual();
                 }
 
-                // 2. CONSULTAR HISTORIAL Y HOJA ANEMICOS EXTRA
                 const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dH = await rH.json();
                 
@@ -278,11 +297,9 @@
                     if(!avisos.includes("🔴 ALERTA: NIÑO CON ANEMIA")) avisos.push("🔴 ALERTA: REGISTRADO EN PADRÓN ANÉMICOS");
                 }
 
-                // Lógica de actualización de datos si NO está en Mapa DIT
                 if(!n) {
                     const totalAvisos = (dH.vecesAdvertido || 0) + 1;
-                    const msgAct = `Mamita deberá actualizar sus datos para la próxima cita. (Aviso: ${totalAvisos})`;
-                    avisos.push("📝 " + msgAct);
+                    avisos.push(`📝 Mamita deberá actualizar sus datos para la próxima cita. (Aviso: ${totalAvisos})`);
                     document.getElementById('finalAviso').value = `ACTUALIZAR DATOS (${totalAvisos}° VEZ)`;
                 }
 
@@ -304,15 +321,21 @@
     });
 
     function habilitarManual() {
-        lanzarModal("DNI no en Mapa DIT. Ingrese datos manualmente y solicite actualización.", "📝");
+        lanzarModal("DNI no en Mapa DIT. Ingrese todos los datos obligatorios marcados con *.", "📝");
         document.querySelectorAll('#nombreInput, #telInput, #nacInput, #hcInput, #sectorInput').forEach(el => { 
             el.readOnly = false; el.style.background = "white"; 
         });
-        document.getElementById('nacInput').placeholder = "DD/MM/YYYY";
     }
 
     document.getElementById('citaForm').addEventListener('submit', function(e) {
         e.preventDefault();
+
+        // Validar que la edad se haya calculado (garantiza que hay fecha nac y fecha cita)
+        if(document.getElementById('edadInput').value === "" || document.getElementById('edadInput').value === "Fecha Cita Inválida") {
+            lanzarModal("Verifique la fecha de nacimiento y la fecha de cita.", "⚠️");
+            return;
+        }
+
         const btn = document.getElementById('btnEnviar');
         btn.disabled = true; btn.innerText = "REGISTRANDO...";
 
@@ -326,6 +349,9 @@
         fetch(SCRIPT_CITAS, { method: 'POST', body: fD }).then(() => { 
             lanzarModal("REGISTRO EXITOSO EN CASTILLO GRANDE", "✅"); 
             setTimeout(() => location.reload(), 2000); 
+        }).catch(() => {
+            lanzarModal("Error de conexión. Intente de nuevo.", "❌");
+            btn.disabled = false; btn.innerText = "CONFIRMAR REGISTRO";
         });
     });
 
@@ -343,6 +369,8 @@
         const limite = (turno === "MAÑANA") ? 18 : 6;
         document.getElementById('boxAdicional').style.display = (d.ocupados >= limite) ? 'block' : 'none';
         document.getElementById('btnEnviar').innerText = (d.ocupados >= limite) ? "REGISTRAR COMO ADICIONAL" : "CONFIRMAR REGISTRO";
+        
+        calcularEdadCita(); // Recalcular edad al cambiar fecha cita
     };
     
     document.getElementById('citaInput').addEventListener('change', validarTodo);
