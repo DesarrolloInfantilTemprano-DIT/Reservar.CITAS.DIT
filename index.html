@@ -62,6 +62,7 @@
             margin-bottom: 20px; display: none; border: 1px solid #e2e8f0;
         }
         .historial-item { font-size: 12px; display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
+        .historial-item b { color: var(--primary); background: #eef2ff; padding: 2px 8px; border-radius: 6px; font-size: 10px; }
 
         .btn-submit {
             width: 100%; padding: 18px; background: var(--primary); color: white;
@@ -74,6 +75,12 @@
         .badge-adicional {
             display: none; background: #fff7ed; border: 1px solid #ffedd5;
             padding: 12px; border-radius: 12px; margin-top: 10px;
+        }
+
+        .contador-vivos {
+            background: #e0f2fe; color: #0369a1; padding: 12px; border-radius: 12px;
+            font-size: 12px; font-weight: 800; margin-bottom: 15px; display: none;
+            border: 1px solid #bae6fd; align-items: center; gap: 10px;
         }
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -148,6 +155,13 @@
 
         <div class="form-section">
             <span class="section-title">Detalles de la Atención</span>
+            
+            <!-- Contador de citas en vivo -->
+            <div id="infoCitas" class="contador-vivos">
+                <i class="fa-solid fa-users-viewfinder"></i>
+                <span id="textoContador">Seleccione fecha para ver ocupación.</span>
+            </div>
+
             <div class="input-group">
                 <label>CONSULTORIO *</label>
                 <select name="CONSULTORIO" id="consInput" required>
@@ -171,7 +185,7 @@
             <div id="boxAdicional" class="badge-adicional">
                 <label style="display:flex; align-items:center; gap:8px; color:#9a3412; font-size:12px; cursor:pointer;">
                     <input type="checkbox" name="ES_ADICIONAL" id="checkAdicional" value="true">
-                    <span><b>CUPOS AGOTADOS.</b> Registrar como adicional.</span>
+                    <span><b>CUPOS AGOTADOS.</b> Acepto registrar como adicional.</span>
                 </label>
             </div>
         </div>
@@ -187,12 +201,11 @@
 </div>
 
 <script>
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbyKmff-6SCCJp7WF8g8nHDm7HFW6cU5ygod_inbfS8gxinlvrrhGnPbsXme2mNQ_8lp3w/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbwph80D5BBAm1txMhxLgGiIYVPFKjY-yXi580pJlLQhTBuWrvvSBEm1iqs7zlB4KQmskw/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
 
     let globalAnemia = "NO";
     let globalInasistencias = "NINGUNA";
-    // MEJORA: Evitar alertas reincidentes de DNI
     let ultimoDniBuscado = "";
 
     function lanzarModal(texto, icono='ℹ️') {
@@ -201,6 +214,11 @@
         document.getElementById('modalCustom').style.display = 'flex';
     }
     function cerrarModal() { document.getElementById('modalCustom').style.display = 'none'; }
+
+    // MEJORA: Solo números en celular
+    document.getElementById('telInput').addEventListener('input', function(e) {
+        this.value = this.value.replace(/\D/g, '');
+    });
 
     function calcularEdadCita() {
         const fechaNacStr = document.getElementById('nacInput').value;
@@ -242,8 +260,6 @@
         calcularEdadCita();
     });
 
-    document.getElementById('citaInput').addEventListener('change', calcularEdadCita);
-
     const aLatino = (f) => {
         if(!f) return "";
         const parts = f.split("-");
@@ -252,8 +268,6 @@
 
     document.getElementById('dniInput').addEventListener('input', async (e) => {
         const dni = e.target.value;
-        
-        // MEJORA: No repetir búsqueda si el DNI es el mismo
         if(dni === ultimoDniBuscado) return;
 
         if(dni.length === 8) {
@@ -269,8 +283,7 @@
                 if(n) {
                     document.getElementById('nombreInput').value = n.nombreHijo;
                     const fNac = n.nacimientoHijo ? n.nacimientoHijo.split("T")[0] : "";
-                    const fLatina = aLatino(fNac);
-                    document.getElementById('nacInput').value = fLatina;
+                    document.getElementById('nacInput').value = aLatino(fNac);
                     document.getElementById('telInput').value = n.celular;
                     document.getElementById('hcInput').value = n.hc || "";
                     document.getElementById('sectorInput').value = n.sector || "";
@@ -303,7 +316,6 @@
 
                 if(!n) {
                     const totalAvisos = (dH.vecesAdvertido || 0) + 1;
-                    // MEJORA: Texto exacto solicitado
                     avisos.push(`📝 Falta actualizar georeferencia del Niñ@. Ingrese datos manualmente e indique actualización desde su casita. (Aviso: ${totalAvisos})`);
                     document.getElementById('finalAviso').value = `ACTUALIZAR DATOS (${totalAvisos}° VEZ)`;
                 }
@@ -317,7 +329,6 @@
                     const list = document.getElementById('listaHistorial');
                     list.innerHTML = '';
                     dH.historial.reverse().slice(0,3).forEach(c => {
-                        // MEJORA: Limpieza de fecha ISO en cliente para evitar horas en la web
                         let fLimpia = c.fecha.split("T")[0];
                         list.innerHTML += `<div class="historial-item"><span>${fLimpia} - ${c.turno}</span> <b>${c.consultorio}</b></div>`;
                     });
@@ -325,17 +336,70 @@
                 }
             } catch(e) { console.error(e); }
         } else {
-            ultimoDniBuscado = ""; // Resetear si borran el DNI
+            ultimoDniBuscado = "";
         }
     });
 
     function habilitarManual() {
-        // MEJORA: Texto exacto solicitado
         lanzarModal("Falta actualizar georeferencia del Niñ@. Ingrese datos manualmente e indique actualización desde su casita", "📝");
         document.querySelectorAll('#nombreInput, #telInput, #nacInput, #hcInput, #sectorInput').forEach(el => { 
             el.readOnly = false; el.style.background = "white"; 
         });
     }
+
+    const validarTodo = async () => {
+        const fecha = document.getElementById('citaInput').value;
+        const turno = document.getElementById('turnoInput').value;
+        const cons = document.getElementById('consInput').value;
+        const btn = document.getElementById('btnEnviar');
+        const checkAdi = document.getElementById('checkAdicional');
+        
+        if(!fecha) return;
+
+        const dia = new Date(fecha + 'T00:00:00').getDay();
+        if(dia === 0) { lanzarModal("Domingos no hay atención", "❌"); document.getElementById('citaInput').value=""; return; }
+        if(dia === 6 && turno === "TARDE") { lanzarModal("Sábados solo turno Mañana", "⚠️"); document.getElementById('turnoInput').value="MAÑANA"; return; }
+
+        const fLatino = aLatino(fecha);
+        const r = await fetch(`${SCRIPT_CITAS}?validarCupo=true&fecha=${fLatino}&turno=${turno}&consultorio=${cons}`);
+        const d = await r.json();
+        
+        const limite = (turno === "MAÑANA") ? 18 : 6;
+        
+        // MOSTRAR CONTEO DE CITAS EN EL FORMULARIO
+        const infoDiv = document.getElementById('infoCitas');
+        const textoContador = document.getElementById('textoContador');
+        infoDiv.style.display = 'flex';
+        textoContador.innerText = `Hay ${d.totalCitas} citas reservadas para esta fecha en el turno ${turno}.`;
+
+        // LÓGICA DE BLOQUEO SI HAY ADICIONAL
+        if (d.ocupados >= limite) {
+            document.getElementById('boxAdicional').style.display = 'block';
+            
+            if (!checkAdi.checked) {
+                btn.disabled = true;
+                btn.innerText = "MARQUE EL CHECK DE ADICIONAL";
+                btn.style.background = "#94a3b8";
+            } else {
+                btn.disabled = false;
+                btn.innerText = "REGISTRAR COMO ADICIONAL";
+                btn.style.background = "var(--warning)";
+            }
+        } else {
+            document.getElementById('boxAdicional').style.display = 'none';
+            checkAdi.checked = false;
+            btn.disabled = false;
+            btn.innerText = "CONFIRMAR REGISTRO";
+            btn.style.background = "var(--primary)";
+        }
+        
+        calcularEdadCita();
+    };
+
+    document.getElementById('checkAdicional').addEventListener('change', validarTodo);
+    document.getElementById('citaInput').addEventListener('change', validarTodo);
+    document.getElementById('turnoInput').addEventListener('change', validarTodo);
+    document.getElementById('consInput').addEventListener('change', validarTodo);
 
     document.getElementById('citaForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -364,27 +428,6 @@
         });
     });
 
-    const validarTodo = async () => {
-        const fecha = document.getElementById('citaInput').value;
-        const turno = document.getElementById('turnoInput').value;
-        const cons = document.getElementById('consInput').value;
-        if(!fecha) return;
-        const dia = new Date(fecha + 'T00:00:00').getDay();
-        if(dia === 0) { lanzarModal("Domingos no hay atención", "❌"); document.getElementById('citaInput').value=""; return; }
-        if(dia === 6 && turno === "TARDE") { lanzarModal("Sábados solo turno Mañana", "⚠️"); document.getElementById('turnoInput').value="MAÑANA"; return; }
-        const fLatino = aLatino(fecha);
-        const r = await fetch(`${SCRIPT_CITAS}?validarCupo=true&fecha=${fLatino}&turno=${turno}&consultorio=${cons}`);
-        const d = await r.json();
-        const limite = (turno === "MAÑANA") ? 18 : 6;
-        document.getElementById('boxAdicional').style.display = (d.ocupados >= limite) ? 'block' : 'none';
-        document.getElementById('btnEnviar').innerText = (d.ocupados >= limite) ? "REGISTRAR COMO ADICIONAL" : "CONFIRMAR REGISTRO";
-        
-        calcularEdadCita();
-    };
-    
-    document.getElementById('citaInput').addEventListener('change', validarTodo);
-    document.getElementById('turnoInput').addEventListener('change', validarTodo);
-    
     function limpiarAlerta() {
         document.getElementById('alertInasistencia').style.display = 'none';
         document.getElementById('boxHistorial').style.display = 'none';
