@@ -193,7 +193,7 @@
         const max = (turno === "MAÑANA") ? 18 : 6;
 
         // Validar si es Sábado tarde (No permitido según instrucción)
-        if(dia === 5 && turno === "TARDE") { // getUTCDay: 5 es Sábado en zona horaria
+        if(dia === 6 && turno === "TARDE") { // getUTCDay: 6 es Sábado en zona horaria
              showModal("AVISO", "Los días Sábados no contamos con turno tarde.", "warning");
              return;
         }
