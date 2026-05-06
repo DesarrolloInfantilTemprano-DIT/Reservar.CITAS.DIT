@@ -187,11 +187,13 @@
 </div>
 
 <script>
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbw8LO9jD7MG8ksjMah0QNWvV6_GJL9dRdWy-tFCuCFz1RbKqA2O_m41jLmh4zeAC0jwlQ/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbyKmff-6SCCJp7WF8g8nHDm7HFW6cU5ygod_inbfS8gxinlvrrhGnPbsXme2mNQ_8lp3w/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
 
     let globalAnemia = "NO";
     let globalInasistencias = "NINGUNA";
+    // MEJORA: Evitar alertas reincidentes de DNI
+    let ultimoDniBuscado = "";
 
     function lanzarModal(texto, icono='ℹ️') {
         document.getElementById('modalText').innerText = texto;
@@ -200,10 +202,9 @@
     }
     function cerrarModal() { document.getElementById('modalCustom').style.display = 'none'; }
 
-    // NUEVO: Función para calcular edad COMPARANDO CON FECHA DE CITA
     function calcularEdadCita() {
         const fechaNacStr = document.getElementById('nacInput').value;
-        const fechaCitaStr = document.getElementById('citaInput').value; // Formato YYYY-MM-DD
+        const fechaCitaStr = document.getElementById('citaInput').value; 
 
         if(!fechaNacStr || fechaNacStr.length < 10 || !fechaCitaStr) {
             document.getElementById('edadInput').value = "";
@@ -231,7 +232,6 @@
         }
     }
 
-    // Máscara de fecha y trigger de edad
     document.getElementById('nacInput').addEventListener('input', function(e) {
         if(this.readOnly) return;
         let v = this.value.replace(/\D/g,'');
@@ -242,7 +242,6 @@
         calcularEdadCita();
     });
 
-    // Trigger de edad cuando cambia la fecha de cita
     document.getElementById('citaInput').addEventListener('change', calcularEdadCita);
 
     const aLatino = (f) => {
@@ -253,7 +252,12 @@
 
     document.getElementById('dniInput').addEventListener('input', async (e) => {
         const dni = e.target.value;
+        
+        // MEJORA: No repetir búsqueda si el DNI es el mismo
+        if(dni === ultimoDniBuscado) return;
+
         if(dni.length === 8) {
+            ultimoDniBuscado = dni;
             limpiarAlerta();
             try {
                 const respMapa = await fetch(SCRIPT_MAPA);
@@ -299,7 +303,8 @@
 
                 if(!n) {
                     const totalAvisos = (dH.vecesAdvertido || 0) + 1;
-                    avisos.push(`📝 Mamita deberá actualizar sus datos para la próxima cita. (Aviso: ${totalAvisos})`);
+                    // MEJORA: Texto exacto solicitado
+                    avisos.push(`📝 Falta actualizar georeferencia del Niñ@. Ingrese datos manualmente e indique actualización desde su casita. (Aviso: ${totalAvisos})`);
                     document.getElementById('finalAviso').value = `ACTUALIZAR DATOS (${totalAvisos}° VEZ)`;
                 }
 
@@ -312,16 +317,21 @@
                     const list = document.getElementById('listaHistorial');
                     list.innerHTML = '';
                     dH.historial.reverse().slice(0,3).forEach(c => {
-                        list.innerHTML += `<div class="historial-item"><span>${c.fecha} - ${c.turno}</span> <b>${c.consultorio}</b></div>`;
+                        // MEJORA: Limpieza de fecha ISO en cliente para evitar horas en la web
+                        let fLimpia = c.fecha.split("T")[0];
+                        list.innerHTML += `<div class="historial-item"><span>${fLimpia} - ${c.turno}</span> <b>${c.consultorio}</b></div>`;
                     });
                     document.getElementById('boxHistorial').style.display = 'block';
                 }
             } catch(e) { console.error(e); }
+        } else {
+            ultimoDniBuscado = ""; // Resetear si borran el DNI
         }
     });
 
     function habilitarManual() {
-        lanzarModal("DNI no en Mapa DIT. Ingrese todos los datos obligatorios marcados con *.", "📝");
+        // MEJORA: Texto exacto solicitado
+        lanzarModal("Falta actualizar georeferencia del Niñ@. Ingrese datos manualmente e indique actualización desde su casita", "📝");
         document.querySelectorAll('#nombreInput, #telInput, #nacInput, #hcInput, #sectorInput').forEach(el => { 
             el.readOnly = false; el.style.background = "white"; 
         });
@@ -330,7 +340,6 @@
     document.getElementById('citaForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Validar que la edad se haya calculado (garantiza que hay fecha nac y fecha cita)
         if(document.getElementById('edadInput').value === "" || document.getElementById('edadInput').value === "Fecha Cita Inválida") {
             lanzarModal("Verifique la fecha de nacimiento y la fecha de cita.", "⚠️");
             return;
@@ -370,7 +379,7 @@
         document.getElementById('boxAdicional').style.display = (d.ocupados >= limite) ? 'block' : 'none';
         document.getElementById('btnEnviar').innerText = (d.ocupados >= limite) ? "REGISTRAR COMO ADICIONAL" : "CONFIRMAR REGISTRO";
         
-        calcularEdadCita(); // Recalcular edad al cambiar fecha cita
+        calcularEdadCita();
     };
     
     document.getElementById('citaInput').addEventListener('change', validarTodo);
