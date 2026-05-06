@@ -234,7 +234,7 @@
         const diaSemana = new Date(fecha).getUTCDay(); // 0=Dom, 6=Sab
         
         // Regla Sábados Tarde
-        if(diaSemana === 5 && turno === "TARDE") { // getUTCDay devuelve 5 para sábado si no se ajusta zona
+        if(diaSemana === 6 && turno === "TARDE") { // getUTCDay devuelve 6 para sábado si no se ajusta zona
             alert("No hay turno tarde los días sábados.");
             document.getElementById('turnoInput').value = "MAÑANA";
             return;
