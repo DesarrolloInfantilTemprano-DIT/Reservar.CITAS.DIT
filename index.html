@@ -32,13 +32,11 @@
         .header { text-align: center; margin-bottom: 30px; }
         .header h2 { margin: 0; color: var(--primary-dark); font-weight: 800; font-size: 26px; }
         
-        /* Alertas */
         .alert-box {
             padding: 15px; border-radius: 16px; font-size: 13px; font-weight: 600;
             margin-bottom: 20px; display: none; align-items: center; gap: 10px;
             animation: slideIn 0.3s ease;
         }
-        .alert-info { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
         .alert-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
 
         .form-section { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #f1f5f9; }
@@ -53,7 +51,6 @@
         }
         input:focus { border-color: var(--primary); outline: none; background: white; }
 
-        /* Historial Local */
         .historial-box {
             background: #f8fafc; border-radius: 16px; padding: 15px;
             margin-bottom: 20px; display: none; border: 1px solid #e2e8f0;
@@ -71,7 +68,6 @@
         .btn-submit:hover { transform: translateY(-2px); background: var(--primary-dark); }
         .btn-submit:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
 
-        /* Estilo Adicional */
         .badge-adicional {
             display: none; background: #fff7ed; border: 1px solid #ffedd5;
             padding: 12px; border-radius: 12px; margin-top: 10px;
@@ -96,17 +92,15 @@
         <p style="font-size: 13px; color: #64748b; font-weight: 600;">C.S. Castillo Grande</p>
     </div>
 
-    <!-- Alert de Inasistencias (Viene del Mapa) -->
+    <!-- Alert de Alertas Médicas e Inasistencias -->
     <div id="alertInasistencia" class="alert-box alert-danger">
         <i class="fa-solid fa-circle-exclamation"></i>
         <span id="inaMsg"></span>
     </div>
 
-    <!-- Historial de Citas del Niño -->
     <div id="boxHistorial" class="historial-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <span class="section-title" style="margin:0"><i class="fa-solid fa-clock-rotate-left"></i> Historial Local</span>
-            <i class="fa-solid fa-chevron-up" style="cursor:pointer; font-size:12px;" onclick="toggleBox('listaHistorial')"></i>
         </div>
         <div id="listaHistorial"></div>
     </div>
@@ -156,11 +150,10 @@
                 </div>
             </div>
 
-            <!-- Registro Adicional -->
             <div id="boxAdicional" class="badge-adicional">
                 <label style="display:flex; align-items:center; gap:10px; color:#9a3412; cursor:pointer;">
                     <input type="checkbox" name="ES_ADICIONAL" id="checkAdicional" value="true">
-                    <span><b>CUPOS AGOTADOS.</b> Marcar para registrar como adicional.</span>
+                    <span><b>CUPOS AGOTADOS.</b> Registrar como adicional.</span>
                 </label>
             </div>
         </div>
@@ -172,77 +165,90 @@
 </div>
 
 <script>
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbwubP0peILr02HdrBwwiFJxzWRyt4jqiq-wapUHWYzDQooAO42Et5Nh1npYnTeM72divA/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbx42a6CA8ej77eig9Cosl64IaiNpvCPnM_SoNxWDiLfIr_qv4yEQqYoSBHZY6d00GiloA/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
 
-    // 1. BUSQUEDA DE NIÑO (MAPA DIT)
+    let globalAnemia = "NO";
+    let globalInasistencias = "NINGUNA";
+
+    function limpiarFecha(f) { return f ? f.split("T")[0] : ""; }
+
     document.getElementById('dniInput').addEventListener('input', async (e) => {
         const dni = e.target.value;
         if(dni.length === 8) {
             limpiarAlerta();
-            
             try {
-                // Consultar Mapa DIT
                 const respMapa = await fetch(SCRIPT_MAPA);
                 const dataMapa = await respMapa.json();
                 const nino = dataMapa.find(x => x.dniHijo == dni);
 
                 if(nino) {
                     document.getElementById('nombreInput').value = nino.nombreHijo;
-                    document.getElementById('nacInput').value = nino.nacimientoHijo;
+                    document.getElementById('nacInput').value = limpiarFecha(nino.nacimientoHijo);
                     document.getElementById('telInput').value = nino.celular;
                     
-                    // Verificar inasistencias
+                    let avisos = [];
+                    // Detectar Anemia
+                    if(nino.anemia === "SI" || nino.dxAnemia === "ANEMIA") {
+                        globalAnemia = "SI";
+                        avisos.push("🔴 ALERTA: NIÑO ANÉMICO");
+                    } else { globalAnemia = "NO"; }
+
+                    // Detectar Inasistencias
                     let inas = [];
                     if(nino.citaFaltante) inas.push("ANEMIA (" + nino.citaFaltante + ")");
                     if(nino.citaCred) inas.push("CRED (" + nino.citaCred + ")");
                     if(nino.citaVacuna) inas.push("VACUNAS (" + nino.citaVacuna + ")");
                     
                     if(inas.length > 0) {
+                        globalInasistencias = inas.join(" | ");
+                        avisos.push("⚠️ PENDIENTES: " + globalInasistencias);
+                    } else { globalInasistencias = "AL DÍA"; }
+
+                    if(avisos.length > 0) {
                         const alertBox = document.getElementById('alertInasistencia');
                         alertBox.style.display = 'flex';
-                        document.getElementById('inaMsg').innerText = "INASISTENCIAS EN MAPA DIT: " + inas.join(", ");
+                        document.getElementById('inaMsg').innerHTML = avisos.join("<br>");
                     }
                 } else {
                     habilitarManual();
-                    alert("Mamita deberá ingresar datos de sus hijos desde casita. Procediendo con ingreso manual.");
+                    alert("Niño no encontrado en Mapa DIT. Ingrese datos manualmente.");
                 }
 
-                // Consultar Historial Local
                 const respHist = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dataHist = await respHist.json();
                 if(dataHist.encontrado) {
                     const list = document.getElementById('listaHistorial');
                     list.innerHTML = '';
                     dataHist.historial.reverse().slice(0,3).forEach(c => {
-                        list.innerHTML += `<div class="historial-item"><span>${c.fecha} - ${c.turno}</span> <b>${c.consultorio} (${c.estado})</b></div>`;
+                        list.innerHTML += `<div class="historial-item"><span>${c.fecha} - ${c.turno}</span> <b>${c.consultorio}</b></div>`;
                     });
                     document.getElementById('boxHistorial').style.display = 'block';
                 }
-            } catch(e) { console.log(e); }
+            } catch(e) { console.error(e); }
         }
     });
 
-    // 2. VALIDACIÓN DE CUPOS DINÁMICA
-    const validarCupos = async () => {
+    const validarTodo = async () => {
         const fecha = document.getElementById('citaInput').value;
         const turno = document.getElementById('turnoInput').value;
-        const consultorio = document.getElementById('consInput').value;
-        
-        if(!fecha || consultorio !== "CRED") return;
+        if(!fecha) return;
 
-        const diaSemana = new Date(fecha).getUTCDay(); // 0=Dom, 6=Sab
-        
-        // Regla Sábados Tarde
-        if(diaSemana === 6 && turno === "TARDE") { // getUTCDay devuelve 6 para sábado si no se ajusta zona
-            alert("No hay turno tarde los días sábados.");
+        const dia = new Date(fecha + 'T00:00:00').getDay();
+        if(dia === 0) {
+            alert("❌ Domingos no hay atención.");
+            document.getElementById('citaInput').value = "";
+            return;
+        }
+
+        if(dia === 6 && turno === "TARDE") {
+            alert("Sábados solo turno mañana.");
             document.getElementById('turnoInput').value = "MAÑANA";
             return;
         }
 
-        const resp = await fetch(`${SCRIPT_CITAS}?validarCupo=true&fecha=${fecha}&turno=${turno}&consultorio=${consultorio}`);
+        const resp = await fetch(`${SCRIPT_CITAS}?validarCupo=true&fecha=${fecha}&turno=${turno}&consultorio=CRED`);
         const data = await resp.json();
-        
         const limite = (turno === "MAÑANA") ? 18 : 6;
         
         if(data.ocupados >= limite) {
@@ -254,60 +260,52 @@
         }
     };
 
-    document.getElementById('citaInput').addEventListener('change', validarCupos);
-    document.getElementById('turnoInput').addEventListener('change', validarCupos);
+    document.getElementById('citaInput').addEventListener('change', validarTodo);
+    document.getElementById('turnoInput').addEventListener('change', validarTodo);
 
-    // 3. MODULO ADMINISTRADOR
-    function abrirModuloAdmin() {
-        const pass = prompt("Clave Administrador:");
-        if(pass === "2026_DIT@") {
-            const select = document.getElementById('consInput');
-            if(select.options.length === 1) {
-                const extras = ["NUTRICIÓN", "ODONTOLOGÍA PEDIATRICA", "PSICOLOGÍA INFANTIL"];
-                extras.forEach(e => {
-                    let opt = document.createElement("option");
-                    opt.value = e; opt.text = "🏥 " + e;
-                    select.add(opt);
-                });
-                alert("Especialidades activadas.");
-            }
-        } else { alert("Clave incorrecta"); }
-    }
+    document.getElementById('citaForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnEnviar');
+        btn.disabled = true;
+        btn.innerText = "ENVIANDO...";
 
-    // UTILIDADES
+        const formData = new FormData(this);
+        formData.append("ALERTA_ANEMIA", globalAnemia);
+        formData.append("ALERTA_INASISTENCIA", globalInasistencias);
+
+        fetch(SCRIPT_CITAS, { method: 'POST', body: formData })
+        .then(() => {
+            alert("REGISTRO EXITOSO");
+            location.reload();
+        });
+    });
+
     function habilitarManual() {
-        document.getElementById('nombreInput').readOnly = false;
-        document.getElementById('nombreInput').style.background = "white";
+        document.querySelectorAll('#nombreInput, #telInput').forEach(el => {
+            el.readOnly = false; el.style.background = "white";
+        });
         document.getElementById('nacInput').type = "date";
         document.getElementById('nacInput').readOnly = false;
         document.getElementById('nacInput').style.background = "white";
-        document.getElementById('telInput').readOnly = false;
-        document.getElementById('telInput').style.background = "white";
-    }
-
-    function toggleBox(id) {
-        const el = document.getElementById(id);
-        el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 
     function limpiarAlerta() {
         document.getElementById('alertInasistencia').style.display = 'none';
         document.getElementById('boxHistorial').style.display = 'none';
+        globalAnemia = "NO"; globalInasistencias = "NINGUNA";
     }
 
-    // ENVÍO
-    document.getElementById('citaForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btnEnviar');
-        btn.disabled = true;
-        btn.innerText = "PROCESANDO...";
-
-        fetch(SCRIPT_CITAS, { method: 'POST', body: new FormData(this) })
-        .then(() => {
-            alert("CITA REGISTRADA CON ÉXITO");
-            location.reload();
-        });
-    });
+    function abrirModuloAdmin() {
+        if(prompt("Clave Admin:") === "2026_DIT@") {
+            const select = document.getElementById('consInput');
+            ["NUTRICIÓN", "ODONTOLOGÍA", "PSICOLOGÍA"].forEach(e => {
+                let opt = document.createElement("option");
+                opt.value = e; opt.text = "🏥 " + e;
+                select.add(opt);
+            });
+            alert("Especialidades activas.");
+        }
+    }
 </script>
 </body>
 </html>
