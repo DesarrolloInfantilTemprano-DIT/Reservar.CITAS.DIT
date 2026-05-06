@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA CRED | Registro de Citas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --primary: #4f46e5; 
+            --primary-hover: #4338ca;
+            --secondary: #0ea5e9; 
+            --accent: #10b981; 
+            --bg: #f8fafc; 
+            --text-main: #1e293b;
+            --text-label: #64748b;
+            --white: #ffffff;
+        }
+
+        body { 
+            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            background-color: var(--bg); 
+            background-image: radial-gradient(circle at top right, #e0e7ff, transparent), radial-gradient(circle at bottom left, #f0f9ff, transparent);
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container { 
+            background: var(--white); 
+            width: 100%; 
+            max-width: 700px; 
+            padding: 40px; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header i { font-size: 40px; color: var(--primary); margin-bottom: 10px; }
+        h2 { margin: 0; color: var(--text-main); font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+        p.subtitle { color: var(--text-label); font-size: 14px; margin-top: 5px; }
+
+        .status-msg { 
+            text-align: center; 
+            font-size: 14px; 
+            font-weight: 600; 
+            padding: 12px; 
+            border-radius: 12px; 
+            margin-bottom: 25px; 
+            display: none; 
+            transition: all 0.3s ease;
+        }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 20px; position: relative; }
+        
+        label { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            font-size: 13px; 
+            color: var(--text-label);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        label i { color: var(--primary); font-size: 14px; }
+
+        input, select { 
+            width: 100%; 
+            padding: 14px 16px; 
+            border: 2px solid #f1f5f9; 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            font-size: 15px; 
+            background: #f8fafc;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+        }
+
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); 
+        }
+
+        button { 
+            width: 100%; 
+            padding: 18px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 14px; 
+            font-size: 16px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        button:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); }
+        button:active { transform: translateY(0); }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        /* Modal Moderno */
+        #customModal { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(15, 23, 42, 0.7); 
+            backdrop-filter: blur(4px);
+            z-index: 9999; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        .modal-content { 
+            background: var(--white); 
+            padding: 40px; 
+            border-radius: 24px; 
+            text-align: center; 
+            max-width: 350px; 
+            width: 85%; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .modal-content i { font-size: 50px; color: var(--accent); margin-bottom: 20px; }
+        .modal-btn { 
+            background: var(--text-main); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 12px; 
+            width: 100%; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 20px; 
+        }
+
+        @media (max-width: 600px) { 
+            .grid { grid-template-columns: 1fr; gap: 0; } 
+            .container { padding: 25px; border-radius: 0; min-height: 100vh; }
+            body { padding: 0; background: var(--white); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="customModal">
+    <div class="modal-content">
+        <i class="fa-solid fa-circle-check"></i>
+        <h3 id="modalTitle" style="margin:0; font-size: 22px;">AVISO</h3>
+        <p id="modalMsg" style="color: var(--text-label); margin-top: 10px;"></p>
+        <button class="modal-btn" onclick="closeModal()">ENTENDIDO</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <i class="fa-solid fa-hospital-user"></i>
+        <h2>Registro de Citas CRED</h2>
+        <p class="subtitle">Complete los datos del paciente para la programación</p>
+    </div>
+
+    <div id="statusBox" class="status-msg"></div>
+
+    <form id="citaForm">
+        <div class="form-group">
+            <label><i class="fa-solid fa-id-card"></i> DNI (8 dígitos)</label>
+            <input type="number" name="DNI" id="dniInput" placeholder="Ej: 70654321" required oninput="if(this.value.length > 8) this.value = this.value.slice(0,8);">
+        </div>
+
+        <div class="form-group">
+            <label><i class="fa-solid fa-user"></i> Nombre Completo</label>
+            <input type="text" name="NOMBRE" id="nombreInput" placeholder="Nombres y Apellidos" required>
+        </div>
+
+        <div class="grid">
+            <div class="form-group">
+                <label><i class="fa-solid fa-cake-candles"></i> F. Nacimiento</label>
+                <input type="date" name="FECHA_NACIMIENTO" id="nacInput" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-mobile-screen-button"></i> Celular</label>
+                <input type="tel" name="CELULAR" id="telInput" placeholder="987654321" required>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="form-group">
+                <label><i class="fa-solid fa-calendar-check"></i> Fecha de Cita</label>
+                <input type="date" name="FECHA_CITA" id="citaInput" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-clock"></i> Turno</label>
+                <select name="TURNO" id="turnoInput">
+                    <option value="MAÑANA">MAÑANA</option>
+                    <option value="TARDE">TARDE</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fa-solid fa-door-open"></i> Consultorio</label>
+            <select name="CONSULTORIO" id="consInput">
+                <option value="CRED- (CONSULTORIO N° 1)">CONSULTORIO N° 1</option>
+                <option value="CRED- (CONSULTORIO N° 2)">CONSULTORIO N° 2</option>
+                <option value="CRED- (CONSULTORIO N° 3)">CONSULTORIO N° 3</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fa-solid fa-location-dot"></i> Establecimiento (EESS)</label>
+            <input list="listaEESS" name="EESS" id="eessInput" placeholder="Escriba el nombre del centro..." required>
+            <datalist id="listaEESS">
+                <option value="C.S. AREQUIPA NOR">
+                <option value="C.S. HUANCAYE">
+                <option value="C.S. AMATICO DE NEYUDA">
+                <option value="C.S. PUNTA HERMOSA">
+                <option value="C.S. LLICUA">
+                <option value="C.S. SANTA MARÍA DEL VALLE">
+                <option value="C.S. LAS MORAS">
+                <option value="C.S. APARICIO POMARES">
+                <option value="C.S. ACOMAYO">
+                <option value="P.S. LA ESPERANZA">
+                <option value="P.S. IRCO SUR">
+                <option value="C.S. SURCO">
+                <option value="C.S. MIRAFLORES">
+                <option value="HOSPITAL REGIONAL DE TRUJILLO">
+                <option value="HOSPITAL GOYENECHE AREQUIPA">
+            </datalist>
+        </div>
+
+        <button type="submit" id="btnEnviar">
+            <i class="fa-solid fa-paper-plane"></i> REGISTRAR CITA
+        </button>
+    </form>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbw7J_CQF2fLt1VtVtaYgDw3j-VEHpGwWU5i8HjX4i1kXn8jwtbh7PEw2BQx-qGv1o3Q/exec'; 
+    const form = document.getElementById('citaForm');
+    const statusBox = document.getElementById('statusBox');
+
+    function showModal(title, msg, type = 'success') {
+        const modal = document.getElementById('customModal');
+        const icon = modal.querySelector('i');
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalMsg').innerText = msg;
+        
+        if(type === 'error') {
+            icon.className = "fa-solid fa-circle-xmark";
+            icon.style.color = "#ef4444";
+        } else {
+            icon.className = "fa-solid fa-circle-check";
+            icon.style.color = "var(--accent)";
+        }
+        
+        modal.style.display = 'flex';
+    }
+    
+    function closeModal() { document.getElementById('customModal').style.display = 'none'; }
+
+    function convertirAFechaInput(fechaRaw) {
+        if (!fechaRaw) return "";
+        let str = fechaRaw.toString();
+        if (str.includes('/')) {
+            const p = str.split('/');
+            const dia = p[0].padStart(2, '0');
+            const mes = p[1].padStart(2, '0');
+            const anio = p[2].length === 2 ? "20" + p[2] : p[2];
+            return `${anio}-${mes}-${dia}`;
+        }
+        try {
+            let d = new Date(fechaRaw);
+            if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+        } catch(e) {}
+        return "";
+    }
+
+    document.getElementById('dniInput').addEventListener('input', async (e) => {
+        const dni = e.target.value;
+        if (dni.length === 8) {
+            statusBox.style.display = 'block';
+            statusBox.style.background = '#eff6ff';
+            statusBox.style.color = '#1e40af';
+            statusBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando historial...';
+            try {
+                const response = await fetch(`${scriptURL}?dni=${dni}`);
+                const data = await response.json();
+                if (data.encontrado) {
+                    document.getElementById('nombreInput').value = data.nombre || "";
+                    document.getElementById('telInput').value = data.celular || "";
+                    document.getElementById('eessInput').value = data.eess || "";
+                    document.getElementById('nacInput').value = convertirAFechaInput(data.nacimiento);
+                    document.getElementById('citaInput').value = convertirAFechaInput(data.fechaCita);
+                    if(data.turno) document.getElementById('turnoInput').value = data.turno;
+                    if(data.consultorio) document.getElementById('consInput').value = data.consultorio;
+                    
+                    statusBox.style.background = '#ecfdf5';
+                    statusBox.style.color = '#065f46';
+                    statusBox.innerHTML = '<i class="fa-solid fa-check-double"></i> Datos cargados automáticamente';
+                } else {
+                    statusBox.style.background = '#fffbeb';
+                    statusBox.style.color = '#92400e';
+                    statusBox.innerHTML = '<i class="fa-solid fa-user-plus"></i> Paciente nuevo detectado';
+                }
+            } catch (e) { 
+                statusBox.style.background = '#fef2f2';
+                statusBox.style.color = '#991b1b';
+                statusBox.innerText = "⚠️ Error de conexión"; 
+            }
+        } else { statusBox.style.display = 'none'; }
+    });
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        const eessVal = document.getElementById('eessInput').value;
+        const opciones = Array.from(document.querySelectorAll('#listaEESS option')).map(o => o.value);
+        if (!opciones.includes(eessVal)) {
+            showModal("CAMPO REQUERIDO", "Por favor, seleccione un establecimiento de salud válido de la lista.", "error");
+            return;
+        }
+
+        const btn = document.getElementById('btnEnviar');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> PROCESANDO...';
+
+        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+        .then(() => {
+            showModal("¡REGISTRO EXITOSO!", "La cita CRED ha sido guardada correctamente en el sistema.");
+            form.reset();
+            statusBox.style.display = 'none';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> REGISTRAR CITA';
+        })
+        .catch(() => {
+            showModal("ERROR", "No se pudo sincronizar con la base de datos. Intente nuevamente.", "error");
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> REGISTRAR CITA';
+        });
+    });
+</script>
+</body>
+</html>
