@@ -235,7 +235,6 @@
             limpiarAlerta();
             
             try {
-                // 1. CONSULTA AL CENSO
                 const respCenso = await fetch(`${SCRIPT_CENSO}?action=buscar&dni=${dni}`);
                 const dataCenso = await respCenso.json();
 
@@ -252,24 +251,24 @@
                 document.getElementById('sectorInput').value = dataCenso.sector || "";
                 document.getElementById('btnEnviar').disabled = false;
 
-                // 2. CONSULTA AL MAPA (ANEMIA)
+                // --- MEJORA: BÚSQUEDA DIRECTA EN HOJA ANEMICOS ---
                 const respMapa = await fetch(SCRIPT_MAPA);
                 const dataMapa = await respMapa.json();
                 
+                // Buscamos coincidencia en el consolidado del mapa
                 const n = dataMapa.find(x => String(x.DNI).trim() === dni || String(x.dniHijo).trim() === dni);
 
                 let avisos = [];
 
                 if(n) {
-                    globalAnemia = "SI";
-                    avisos.push("🔴 <b>PACIENTE EN SEGUIMIENTO POR ANEMIA</b>");
-                    
-                    // --- LÓGICA DE ALTA POR ANEMIA ---
+                    // IDENTIFICACIÓN ESTRICTA: Solo la hoja "Anemicos" tiene FechaInicio
                     if(n.FechaInicio) {
+                        globalAnemia = "SI";
+                        avisos.push("🔴 <b>PACIENTE EN SEGUIMIENTO POR ANEMIA</b>");
+                        
                         const partes = n.FechaInicio.split("/");
                         if(partes.length === 3) {
                             const fInicio = new Date(partes[2], partes[1]-1, partes[0]);
-                            // Sumamos 7 meses (6 de tratamiento + 1 de recuperación para el alta definitiva)
                             fInicio.setMonth(fInicio.getMonth() + 7);
                             const fAlta = `${fInicio.getDate().toString().padStart(2,'0')}/${(fInicio.getMonth()+1).toString().padStart(2,'0')}/${fInicio.getFullYear()}`;
                             
@@ -282,8 +281,11 @@
                                 ✅ Alta Probable: ${fAlta}
                             `;
                         }
+                    } else {
+                        globalAnemia = "NO";
                     }
                     
+                    // Procesar inasistencias de otras hojas
                     let inas = [];
                     if(n.citaFaltante) inas.push("ANEMIA (" + n.citaFaltante + ")");
                     if(n.citaCred) inas.push("CRED (" + n.citaCred + ")");
@@ -295,7 +297,6 @@
                     }
                 }
 
-                // 3. CONSULTA AL SCRIPT DE CITAS (HISTORIAL)
                 const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dH = await rH.json();
 
