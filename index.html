@@ -305,19 +305,22 @@
                     habilitarManual();
                 }
 
-                // 2. CONSULTA AL SCRIPT DE CITAS (HOJA ANEMICOS)
+                // 2. CONSULTA AL SCRIPT DE CITAS (PROCESAMIENTO HOJA ANEMICOS)
                 const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dH = await rH.json();
                 
+                // CORRECCIÓN: Forzamos la detección si dH indica que es anémico
                 if(dH.esAnemico) {
                     globalAnemia = "SI"; 
                     let msgAnemia = "🔴 <b>PADRÓN ANÉMICOS:</b>";
                     if(dH.detallesAnemia && dH.detallesAnemia.fechaInicio) {
                         msgAnemia += `<br>📅 Inicio: ${dH.detallesAnemia.fechaInicio} | ✅ Alta Probable: ${dH.detallesAnemia.fechaAlta}`;
+                    } else if (dH.fechaInicio) { // Respaldo si los datos vienen en primer nivel
+                         msgAnemia += `<br>📅 Inicio: ${dH.fechaInicio} | ✅ Alta Probable: ${dH.fechaAlta}`;
                     }
                     avisos.push(msgAnemia);
                 } else if (globalAnemia === "SI") {
-                    avisos.push("🔴 <b>ALERTA:</b> NIÑO CON ANEMIA (Sin padrón detallado)");
+                    avisos.push("🔴 <b>ALERTA:</b> NIÑO CON ANEMIA (Verificar en Padrón)");
                 }
 
                 if(!n) {
@@ -331,7 +334,7 @@
                     document.getElementById('inaMsg').innerHTML = avisos.join("<hr style='border:0; border-top:1px solid #fecaca; margin:5px 0;'>");
                 }
 
-                if(dH.encontrado) {
+                if(dH.encontrado && dH.historial) {
                     const list = document.getElementById('listaHistorial');
                     list.innerHTML = '';
                     dH.historial.reverse().slice(0,3).forEach(c => {
@@ -344,7 +347,7 @@
                     });
                     document.getElementById('boxHistorial').style.display = 'block';
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) { console.error("Error en búsqueda:", e); }
         } else {
             ultimoDniBuscado = "";
         }
