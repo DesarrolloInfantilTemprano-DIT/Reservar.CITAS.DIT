@@ -108,7 +108,7 @@
 
     <div id="alertInasistencia" class="alert-box alert-danger">
         <i class="fa-solid fa-circle-exclamation fa-beat"></i>
-        <span id="inaMsg"></span>
+        <div id="inaMsg" style="width: 100%;"></div>
     </div>
 
     <div id="boxHistorial" class="historial-box">
@@ -200,7 +200,7 @@
 </div>
 
 <script>
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbxLEAVIc2DTpy1ozCCYtotJH_kEJRh9X6SA6TZFXvuWz-TqXFzVx5aFhhR8jiYMqufURQ/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbxgLUMGB_RaJyXUhCVTxyzaLAzQrqNAptyEzadlWDNpoxYAU1RNhbbpbeUVDbcD31ItiQ/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
 
     let globalAnemia = "NO";
@@ -214,7 +214,6 @@
     }
     function cerrarModal() { document.getElementById('modalCustom').style.display = 'none'; }
 
-    // MEJORA: Solo números en celular
     document.getElementById('telInput').addEventListener('input', function(e) {
         this.value = this.value.replace(/\D/g, '');
     });
@@ -273,6 +272,7 @@
             ultimoDniBuscado = dni;
             limpiarAlerta();
             try {
+                // 1. CONSULTA AL MAPA GENERAL
                 const respMapa = await fetch(SCRIPT_MAPA);
                 const dataMapa = await respMapa.json();
                 const n = dataMapa.find(x => x.dniHijo == dni);
@@ -288,7 +288,7 @@
                     document.getElementById('sectorInput').value = n.sector || "";
                     
                     if(n.anemia === "SI" || n.dxAnemia === "ANEMIA") {
-                        globalAnemia = "SI"; avisos.push("🔴 ALERTA: NIÑO CON ANEMIA");
+                        globalAnemia = "SI";
                     }
                     
                     let inas = [];
@@ -298,35 +298,37 @@
                     
                     if(inas.length > 0) {
                         globalInasistencias = inas.join(" | ");
-                        avisos.push("⚠️ PENDIENTES: " + globalInasistencias);
+                        avisos.push("⚠️ <b>PENDIENTES:</b> " + globalInasistencias);
                     }
                     calcularEdadCita();
                 } else {
                     habilitarManual();
                 }
 
+                // 2. CONSULTA AL SCRIPT DE CITAS (HOJA ANEMICOS)
                 const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dH = await rH.json();
                 
-                // MEJORA: Mostrar detalles de Anemia con Fecha de Alta
                 if(dH.esAnemico) {
                     globalAnemia = "SI"; 
                     let msgAnemia = "🔴 <b>PADRÓN ANÉMICOS:</b>";
                     if(dH.detallesAnemia && dH.detallesAnemia.fechaInicio) {
-                        msgAnemia += `<br>📅 Inicio: ${dH.detallesAnemia.fechaInicio} | ✅ Alta: ${dH.detallesAnemia.fechaAlta}`;
+                        msgAnemia += `<br>📅 Inicio: ${dH.detallesAnemia.fechaInicio} | ✅ Alta Probable: ${dH.detallesAnemia.fechaAlta}`;
                     }
                     avisos.push(msgAnemia);
+                } else if (globalAnemia === "SI") {
+                    avisos.push("🔴 <b>ALERTA:</b> NIÑO CON ANEMIA (Sin padrón detallado)");
                 }
 
                 if(!n) {
                     const totalAvisos = (dH.vecesAdvertido || 0) + 1;
-                    avisos.push(`📝 Falta actualizar georeferencia del Niñ@. Ingrese datos manualmente e indique actualización desde su casita. (Aviso: ${totalAvisos})`);
+                    avisos.push(`📝 Falta actualizar georeferencia. (Aviso: ${totalAvisos})`);
                     document.getElementById('finalAviso').value = `ACTUALIZAR DATOS (${totalAvisos}° VEZ)`;
                 }
 
                 if(avisos.length > 0) {
                     document.getElementById('alertInasistencia').style.display = 'flex';
-                    document.getElementById('inaMsg').innerHTML = avisos.join("<br>");
+                    document.getElementById('inaMsg').innerHTML = avisos.join("<hr style='border:0; border-top:1px solid #fecaca; margin:5px 0;'>");
                 }
 
                 if(dH.encontrado) {
@@ -349,7 +351,7 @@
     });
 
     function habilitarManual() {
-        lanzarModal("Falta actualizar georeferencia del Niñ@. Ingrese datos manualmente e indique actualización desde su casita", "📝");
+        lanzarModal("Falta actualizar georeferencia del Niñ@. Ingrese datos manualmente.", "📝");
         document.querySelectorAll('#nombreInput, #telInput, #nacInput, #hcInput, #sectorInput').forEach(el => { 
             el.readOnly = false; el.style.background = "white"; 
         });
@@ -381,7 +383,6 @@
 
         if (d.ocupados >= limite) {
             document.getElementById('boxAdicional').style.display = 'block';
-            
             if (!checkAdi.checked) {
                 btn.disabled = true;
                 btn.innerText = "MARQUE EL CHECK DE ADICIONAL";
@@ -398,7 +399,6 @@
             btn.innerText = "CONFIRMAR REGISTRO";
             btn.style.background = "var(--primary)";
         }
-        
         calcularEdadCita();
     };
 
@@ -411,7 +411,7 @@
         e.preventDefault();
 
         if(document.getElementById('edadInput').value === "" || document.getElementById('edadInput').value === "Fecha Cita Inválida") {
-            lanzarModal("Verifique la fecha de nacimiento y la fecha de cita.", "⚠️");
+            lanzarModal("Verifique las fechas.", "⚠️");
             return;
         }
 
@@ -429,7 +429,7 @@
             lanzarModal("REGISTRO EXITOSO EN CASTILLO GRANDE", "✅"); 
             setTimeout(() => location.reload(), 2000); 
         }).catch(() => {
-            lanzarModal("Error de conexión. Intente de nuevo.", "❌");
+            lanzarModal("Error de conexión.", "❌");
             btn.disabled = false; btn.innerText = "CONFIRMAR REGISTRO";
         });
     });
