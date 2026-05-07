@@ -156,7 +156,6 @@
         <div class="form-section">
             <span class="section-title">Detalles de la Atención</span>
             
-            <!-- Contador de citas en vivo -->
             <div id="infoCitas" class="contador-vivos">
                 <i class="fa-solid fa-users-viewfinder"></i>
                 <span id="textoContador">Seleccione fecha para ver ocupación.</span>
@@ -201,7 +200,7 @@
 </div>
 
 <script>
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbwph80D5BBAm1txMhxLgGiIYVPFKjY-yXi580pJlLQhTBuWrvvSBEm1iqs7zlB4KQmskw/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbyrFUAsnPvFltrnXz_LCAEcaKPPG7rG2CU4tikTuEYNyVBr0f4lDz-aBUNzPHjbO_EE/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
 
     let globalAnemia = "NO";
@@ -329,7 +328,12 @@
                     const list = document.getElementById('listaHistorial');
                     list.innerHTML = '';
                     dH.historial.reverse().slice(0,3).forEach(c => {
-                        let fLimpia = c.fecha.split("T")[0];
+                        // MEJORA: Limpieza rigurosa de formato ISO en visualización
+                        let fLimpia = c.fecha;
+                        if(fLimpia.includes("-")) {
+                             const partes = fLimpia.split("T")[0].split("-");
+                             fLimpia = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                        }
                         list.innerHTML += `<div class="historial-item"><span>${fLimpia} - ${c.turno}</span> <b>${c.consultorio}</b></div>`;
                     });
                     document.getElementById('boxHistorial').style.display = 'block';
@@ -366,13 +370,11 @@
         
         const limite = (turno === "MAÑANA") ? 18 : 6;
         
-        // MOSTRAR CONTEO DE CITAS EN EL FORMULARIO
         const infoDiv = document.getElementById('infoCitas');
         const textoContador = document.getElementById('textoContador');
         infoDiv.style.display = 'flex';
         textoContador.innerText = `Hay ${d.totalCitas} citas reservadas para esta fecha en el turno ${turno}.`;
 
-        // LÓGICA DE BLOQUEO SI HAY ADICIONAL
         if (d.ocupados >= limite) {
             document.getElementById('boxAdicional').style.display = 'block';
             
