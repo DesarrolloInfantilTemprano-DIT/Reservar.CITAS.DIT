@@ -226,7 +226,7 @@
         return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : f;
     };
 
-    // --- BÚSQUEDA INTEGRADA CON FILTRO DE ANEMIA ---
+    // --- BÚSQUEDA INTEGRADA CORREGIDA ---
     document.getElementById('dniInput').addEventListener('input', async (e) => {
         const dni = e.target.value.trim();
         if(dni === ultimoDniBuscado) return;
@@ -253,33 +253,39 @@
                 document.getElementById('sectorInput').value = dataCenso.sector || "";
                 document.getElementById('btnEnviar').disabled = false;
 
-                // 2. CONSULTA AL MAPA (MEJORADO: FILTRO REAL POR HOJA ANEMICOS)
+                // 2. CONSULTA AL MAPA (CORRECCIÓN SEGÚN TU EXCEL)
                 const respMapa = await fetch(SCRIPT_MAPA);
                 const dataMapa = await respMapa.json();
                 
-                // Buscamos coincidencia exacta de DNI en el JSON que envía tu doGet
-                const n = dataMapa.find(x => String(x.dniHijo).trim() === dni);
+                // Buscamos coincidencia exacta de DNI en el JSON del mapa
+                const n = dataMapa.find(x => String(x.DNI).trim() === dni || String(x.dniHijo).trim() === dni);
 
                 let avisos = [];
 
                 if(n) {
-                    // VALIDACIÓN: Solo activamos la alerta roja si tiene 'fechaInicioAnemia'
-                    // Esto indica que el niño fue encontrado en la hoja "Anemicos" del Excel
-                    if(n.fechaInicioAnemia) {
-                        globalAnemia = "SI";
-                        avisos.push("🔴 <b>PACIENTE EN SEGUIMIENTO POR ANEMIA</b>");
-                        
-                        const divAnemia = document.getElementById('anemiaDetails');
-                        divAnemia.style.display = 'block';
-                        divAnemia.innerHTML = `
-                            <i class="fa-solid fa-vial-circle-check"></i> 
-                            <b>TRATAMIENTO DETECTADO:</b><br>
-                            📅 Inicio: ${n.fechaInicioAnemia}<br>
-                            ✅ Alta Probable: ${n.fechaAltaAnemia || 'No calculada'}
-                        `;
+                    // Si está en el mapa, activamos alerta de anemia
+                    globalAnemia = "SI";
+                    avisos.push("🔴 <b>PACIENTE EN SEGUIMIENTO POR ANEMIA</b>");
+                    
+                    // Procesar FechaInicio (usando el nombre exacto de tu Excel)
+                    if(n.FechaInicio) {
+                        const partes = n.FechaInicio.split("/");
+                        if(partes.length === 3) {
+                            const fInicio = new Date(partes[2], partes[1]-1, partes[0]);
+                            fInicio.setMonth(fInicio.getMonth() + 7);
+                            const fAlta = `${fInicio.getDate().toString().padStart(2,'0')}/${(fInicio.getMonth()+1).toString().padStart(2,'0')}/${fInicio.getFullYear()}`;
+                            
+                            const divAnemia = document.getElementById('anemiaDetails');
+                            divAnemia.style.display = 'block';
+                            divAnemia.innerHTML = `
+                                <i class="fa-solid fa-vial-circle-check"></i> 
+                                <b>TRATAMIENTO DETECTADO:</b><br>
+                                📅 Inicio: ${n.FechaInicio}<br>
+                                ✅ Alta Probable: ${fAlta}
+                            `;
+                        }
                     }
                     
-                    // Procesar inasistencias detectadas
                     let inas = [];
                     if(n.citaFaltante) inas.push("ANEMIA (" + n.citaFaltante + ")");
                     if(n.citaCred) inas.push("CRED (" + n.citaCred + ")");
@@ -295,7 +301,6 @@
                 const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dH = await rH.json();
 
-                // Aviso de georeferencia si no está en el mapa
                 if(!n) {
                     const totalAvisos = (dH.vecesAdvertido || 0) + 1;
                     avisos.push(`📍 Falta actualizar georeferencia. (Aviso: ${totalAvisos})`);
