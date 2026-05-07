@@ -226,6 +226,7 @@
         return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : f;
     };
 
+    // --- BÚSQUEDA INTEGRADA CORREGIDA ---
     document.getElementById('dniInput').addEventListener('input', async (e) => {
         const dni = e.target.value.trim();
         if(dni === ultimoDniBuscado) return;
@@ -252,22 +253,25 @@
                 document.getElementById('sectorInput').value = dataCenso.sector || "";
                 document.getElementById('btnEnviar').disabled = false;
 
-                // 2. CONSULTA AL MAPA (ÚNICA FUENTE PARA ANEMIA)
+                // 2. CONSULTA AL MAPA (CORRECCIÓN SEGÚN TU EXCEL)
                 const respMapa = await fetch(SCRIPT_MAPA);
                 const dataMapa = await respMapa.json();
-                const n = dataMapa.find(x => x.dniHijo == dni || x.dni == dni);
+                
+                // Buscamos coincidencia exacta de DNI en el JSON del mapa
+                const n = dataMapa.find(x => String(x.DNI).trim() === dni || String(x.dniHijo).trim() === dni);
 
                 let avisos = [];
 
                 if(n) {
-                    // Lógica corregida: Solo SCRIPT_MAPA define anemia
-                    if(n.hoja === "Anemicos" || n.anemia === "SI" || n.dxAnemia === "ANEMIA") {
-                        globalAnemia = "SI";
-                        avisos.push("🔴 <b>PACIENTE EN SEGUIMIENTO POR ANEMIA</b>");
-                        
-                        if(n.FechaInicio) {
-                            const [d, m, y] = n.FechaInicio.split("/");
-                            const fInicio = new Date(y, m-1, d);
+                    // Si está en el mapa, activamos alerta de anemia
+                    globalAnemia = "SI";
+                    avisos.push("🔴 <b>PACIENTE EN SEGUIMIENTO POR ANEMIA</b>");
+                    
+                    // Procesar FechaInicio (usando el nombre exacto de tu Excel)
+                    if(n.FechaInicio) {
+                        const partes = n.FechaInicio.split("/");
+                        if(partes.length === 3) {
+                            const fInicio = new Date(partes[2], partes[1]-1, partes[0]);
                             fInicio.setMonth(fInicio.getMonth() + 7);
                             const fAlta = `${fInicio.getDate().toString().padStart(2,'0')}/${(fInicio.getMonth()+1).toString().padStart(2,'0')}/${fInicio.getFullYear()}`;
                             
@@ -293,7 +297,7 @@
                     }
                 }
 
-                // 3. CONSULTA AL SCRIPT DE CITAS (SOLO HISTORIAL)
+                // 3. CONSULTA AL SCRIPT DE CITAS (HISTORIAL)
                 const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dH = await rH.json();
 
@@ -326,7 +330,7 @@
                 calcularEdadCita();
 
             } catch(e) { 
-                console.error("Error en búsqueda:", e); 
+                console.error("Error crítico:", e); 
                 lanzarModal("Error al conectar con la base de datos.", "❌");
             }
         }
