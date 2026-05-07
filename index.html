@@ -12,6 +12,7 @@
             --secondary: #10b981; --warning: #f59e0b;
             --danger: #ef4444; --bg: #0f172a;
             --card: rgba(255, 255, 255, 0.98);
+            --anemia-bg: #fff1f2; --anemia-border: #fda4af;
         }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -39,10 +40,16 @@
         
         .alert-box {
             padding: 15px; border-radius: 16px; font-size: 13px; font-weight: 600;
-            margin-bottom: 20px; display: none; align-items: center; gap: 10px;
+            margin-bottom: 20px; display: none; flex-direction: column; gap: 8px;
             animation: slideIn 0.3s ease;
         }
         .alert-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+        /* AGREGADO: Estilo para el recuadro de anemia */
+        .anemia-info-card {
+            background: var(--anemia-bg); border: 1px solid var(--anemia-border);
+            padding: 10px; border-radius: 12px; margin-top: 8px; font-size: 11px;
+        }
 
         .form-section { background: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #f1f5f9; }
         .section-title { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 15px; display: block; }
@@ -107,8 +114,11 @@
     </div>
 
     <div id="alertInasistencia" class="alert-box alert-danger">
-        <i class="fa-solid fa-circle-exclamation fa-beat"></i>
-        <div id="inaMsg" style="width: 100%;"></div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <i class="fa-solid fa-circle-exclamation fa-beat"></i>
+            <div id="inaMsg" style="width: 100%;"></div>
+        </div>
+        <div id="anemiaDetails" style="display:none;" class="anemia-info-card"></div>
     </div>
 
     <div id="boxHistorial" class="historial-box">
@@ -200,7 +210,7 @@
 </div>
 
 <script>
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbxgLUMGB_RaJyXUhCVTxyzaLAzQrqNAptyEzadlWDNpoxYAU1RNhbbpbeUVDbcD31ItiQ/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbwajpB5yeZxYuIFBXG-aUJ0XYmc0i91WNNXKVFGSg6yqk0U6UgcUUppn2m3pWfgB4YRLQ/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
 
     let globalAnemia = "NO";
@@ -265,7 +275,7 @@
     };
 
     document.getElementById('dniInput').addEventListener('input', async (e) => {
-        const dni = e.target.value;
+        const dni = e.target.value.trim(); // MEJORADO: trim para evitar espacios
         if(dni === ultimoDniBuscado) return;
 
         if(dni.length === 8) {
@@ -305,20 +315,25 @@
                     habilitarManual();
                 }
 
-                // 2. CONSULTA AL SCRIPT DE CITAS (PROCESAMIENTO HOJA ANEMICOS)
+                // 2. CONSULTA AL SCRIPT DE CITAS (CON CÁLCULOS DE ANEMIA)
                 const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dH = await rH.json();
                 
-                // CORRECCIÓN: Forzamos la detección si dH indica que es anémico
                 if(dH.esAnemico) {
                     globalAnemia = "SI"; 
-                    let msgAnemia = "🔴 <b>PADRÓN ANÉMICOS:</b>";
+                    avisos.push("🔴 <b>NIÑO IDENTIFICADO EN PADRÓN ANÉMICOS</b>");
+                    
+                    // AGREGADO: Mostrar fechas de tratamiento dinámicamente
                     if(dH.detallesAnemia && dH.detallesAnemia.fechaInicio) {
-                        msgAnemia += `<br>📅 Inicio: ${dH.detallesAnemia.fechaInicio} | ✅ Alta Probable: ${dH.detallesAnemia.fechaAlta}`;
-                    } else if (dH.fechaInicio) { // Respaldo si los datos vienen en primer nivel
-                         msgAnemia += `<br>📅 Inicio: ${dH.fechaInicio} | ✅ Alta Probable: ${dH.fechaAlta}`;
+                        const divAnemia = document.getElementById('anemiaDetails');
+                        divAnemia.style.display = 'block';
+                        divAnemia.innerHTML = `
+                            <i class="fa-solid fa-vial-circle-check"></i> 
+                            <b>TRATAMIENTO:</b><br>
+                            📅 Inicio: ${dH.detallesAnemia.fechaInicio}<br>
+                            ✅ Alta Probable: ${dH.detallesAnemia.fechaAlta} (+7 meses)
+                        `;
                     }
-                    avisos.push(msgAnemia);
                 } else if (globalAnemia === "SI") {
                     avisos.push("🔴 <b>ALERTA:</b> NIÑO CON ANEMIA (Verificar en Padrón)");
                 }
@@ -343,7 +358,9 @@
                              const partes = fLimpia.split("T")[0].split("-");
                              fLimpia = `${partes[2]}/${partes[1]}/${partes[0]}`;
                         }
-                        list.innerHTML += `<div class="historial-item"><span>${fLimpia} - ${c.turno}</span> <b>${c.consultorio}</b></div>`;
+                        // MEJORADO: Badge de color según consultorio
+                        const colorBadge = c.consultorio === 'CRED' ? 'var(--primary)' : 'var(--warning)';
+                        list.innerHTML += `<div class="historial-item"><span>${fLimpia} - ${c.turno}</span> <b style="background:${colorBadge}20; color:${colorBadge}">${c.consultorio}</b></div>`;
                     });
                     document.getElementById('boxHistorial').style.display = 'block';
                 }
@@ -439,6 +456,7 @@
 
     function limpiarAlerta() {
         document.getElementById('alertInasistencia').style.display = 'none';
+        document.getElementById('anemiaDetails').style.display = 'none'; // LIMPIAR AGREGADO
         document.getElementById('boxHistorial').style.display = 'none';
         document.getElementById('finalAviso').value = "";
         globalAnemia = "NO"; globalInasistencias = "NINGUNA";
@@ -448,7 +466,10 @@
         if(prompt("Clave de Acceso:") === "2026_DIT@") {
             const s = document.getElementById('consInput');
             ["NUTRICIÓN", "ODONTOLOGÍA", "PSICOLOGÍA"].forEach(e => {
-                let o = document.createElement("option"); o.value = e; o.text = "🏥 " + e; s.add(o);
+                let existe = Array.from(s.options).some(opt => opt.value === e);
+                if(!existe){
+                    let o = document.createElement("option"); o.value = e; o.text = "🏥 " + e; s.add(o);
+                }
             });
             lanzarModal("Especialidades activadas.", "⚙️");
         }
