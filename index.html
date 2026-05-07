@@ -45,7 +45,6 @@
         }
         .alert-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
 
-        /* AGREGADO: Estilo para el recuadro de anemia */
         .anemia-info-card {
             background: var(--anemia-bg); border: 1px solid var(--anemia-border);
             padding: 10px; border-radius: 12px; margin-top: 8px; font-size: 11px;
@@ -212,6 +211,7 @@
 <script>
     const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbwajpB5yeZxYuIFBXG-aUJ0XYmc0i91WNNXKVFGSg6yqk0U6UgcUUppn2m3pWfgB4YRLQ/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
+    const SCRIPT_CENSO = 'https://script.google.com/macros/s/AKfycbyUZovmsNawKbd-Xym-MFbl0gJF_8wl6qj2MDGy-QL-IsJGnYZNPrR7_ezTwl5NsAgPbg/exec';
 
     let globalAnemia = "NO";
     let globalInasistencias = "NINGUNA";
@@ -224,8 +224,125 @@
     }
     function cerrarModal() { document.getElementById('modalCustom').style.display = 'none'; }
 
-    document.getElementById('telInput').addEventListener('input', function(e) {
-        this.value = this.value.replace(/\D/g, '');
+    function bloquearFormulario() {
+        document.querySelectorAll('#nombreInput, #telInput, #nacInput, #hcInput, #sectorInput').forEach(el => { 
+            el.readOnly = true; el.style.background = "#f1f5f9"; el.value = "";
+        });
+        document.getElementById('btnEnviar').disabled = true;
+    }
+
+    const aLatino = (f) => {
+        if(!f) return "";
+        const parts = f.split("-");
+        return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : f;
+    };
+
+    document.getElementById('dniInput').addEventListener('input', async (e) => {
+        const dni = e.target.value.trim();
+        if(dni === ultimoDniBuscado) return;
+
+        if(dni.length === 8) {
+            ultimoDniBuscado = dni;
+            limpiarAlerta();
+            
+            try {
+                // 1. CONSULTA OBLIGATORIA AL CENSO DIT
+                const respCenso = await fetch(`${SCRIPT_CENSO}?dni=${dni}`);
+                const dataCenso = await respCenso.json();
+
+                if (!dataCenso.encontrado) {
+                    lanzarModal("Usuario Nuevo, registre sus datos en Módulo Censo - Admisión", "🚫");
+                    bloquearFormulario();
+                    return; 
+                }
+
+                // SI SE ENCUENTRA EN CENSO, SE ASIGNAN LOS DATOS
+                document.getElementById('nombreInput').value = dataCenso.nombre || "";
+                document.getElementById('nacInput').value = dataCenso.nacimiento || "";
+                document.getElementById('hcInput').value = dataCenso.hc || "";
+                document.getElementById('telInput').value = dataCenso.celular || "";
+                document.getElementById('sectorInput').value = dataCenso.sector || "";
+                document.getElementById('btnEnviar').disabled = false;
+
+                // 2. CONSULTA AL MAPA PARA ALERTAS DE INASISTENCIA Y ANEMIA
+                const respMapa = await fetch(SCRIPT_MAPA);
+                const dataMapa = await respMapa.json();
+                const n = dataMapa.find(x => x.dniHijo == dni);
+
+                let avisos = [];
+
+                if(n) {
+                    // Si el mapa tiene datos más frescos de contacto, podrías usarlos o priorizar Censo
+                    if(n.anemia === "SI" || n.dxAnemia === "ANEMIA") {
+                        globalAnemia = "SI";
+                    }
+                    
+                    let inas = [];
+                    if(n.citaFaltante) inas.push("ANEMIA (" + n.citaFaltante + ")");
+                    if(n.citaCred) inas.push("CRED (" + n.citaCred + ")");
+                    if(n.citaVacuna) inas.push("VACUNAS (" + n.citaVacuna + ")");
+                    
+                    if(inas.length > 0) {
+                        globalInasistencias = inas.join(" | ");
+                        avisos.push("⚠️ <b>PENDIENTES:</b> " + globalInasistencias);
+                    }
+                }
+
+                // 3. CONSULTA AL SCRIPT DE CITAS (HISTORIAL Y ANEMIA PADRÓN)
+                const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
+                const dH = await rH.json();
+                
+                if(dH.esAnemico) {
+                    globalAnemia = "SI"; 
+                    avisos.push("🔴 <b>NIÑO IDENTIFICADO EN PADRÓN ANÉMICOS</b>");
+                    if(dH.detallesAnemia && dH.detallesAnemia.fechaInicio) {
+                        const divAnemia = document.getElementById('anemiaDetails');
+                        divAnemia.style.display = 'block';
+                        divAnemia.innerHTML = `
+                            <i class="fa-solid fa-vial-circle-check"></i> 
+                            <b>TRATAMIENTO:</b><br>
+                            📅 Inicio: ${dH.detallesAnemia.fechaInicio}<br>
+                            ✅ Alta Probable: ${dH.detallesAnemia.fechaAlta} (+7 meses)
+                        `;
+                    }
+                } else if (globalAnemia === "SI") {
+                    avisos.push("🔴 <b>ALERTA:</b> NIÑO CON ANEMIA (Verificar en Padrón)");
+                }
+
+                // RECORDATORIO ACTUALIZACIÓN (Si no está en mapa)
+                if(!n) {
+                    const totalAvisos = (dH.vecesAdvertido || 0) + 1;
+                    avisos.push(`📝 Falta actualizar georeferencia. (Aviso: ${totalAvisos})`);
+                    document.getElementById('finalAviso').value = `ACTUALIZAR DATOS (${totalAvisos}° VEZ)`;
+                }
+
+                if(avisos.length > 0) {
+                    document.getElementById('alertInasistencia').style.display = 'flex';
+                    document.getElementById('inaMsg').innerHTML = avisos.join("<hr style='border:0; border-top:1px solid #fecaca; margin:5px 0;'>");
+                }
+
+                if(dH.encontrado && dH.historial) {
+                    const list = document.getElementById('listaHistorial');
+                    list.innerHTML = '';
+                    dH.historial.reverse().slice(0,3).forEach(c => {
+                        let fLimpia = c.fecha;
+                        if(fLimpia.includes("-")) {
+                             const partes = fLimpia.split("T")[0].split("-");
+                             fLimpia = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                        }
+                        const colorBadge = c.consultorio === 'CRED' ? 'var(--primary)' : 'var(--warning)';
+                        list.innerHTML += `<div class="historial-item"><span>${fLimpia} - ${c.turno}</span> <b style="background:${colorBadge}20; color:${colorBadge}">${c.consultorio}</b></div>`;
+                    });
+                    document.getElementById('boxHistorial').style.display = 'block';
+                }
+                
+                calcularEdadCita();
+
+            } catch(e) { 
+                console.error("Error en búsqueda:", e); 
+                lanzarModal("Error al conectar con la base de datos.", "❌");
+            }
+        }
     });
 
     function calcularEdadCita() {
@@ -256,125 +373,6 @@
             const mesesResto = totalMeses % 12;
             document.getElementById('edadInput').value = `${anios} Años, ${mesesResto} Meses`;
         }
-    }
-
-    document.getElementById('nacInput').addEventListener('input', function(e) {
-        if(this.readOnly) return;
-        let v = this.value.replace(/\D/g,'');
-        if(v.length > 8) v = v.slice(0,8);
-        if(v.length >= 5) v = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4);
-        else if(v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
-        this.value = v;
-        calcularEdadCita();
-    });
-
-    const aLatino = (f) => {
-        if(!f) return "";
-        const parts = f.split("-");
-        return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : f;
-    };
-
-    document.getElementById('dniInput').addEventListener('input', async (e) => {
-        const dni = e.target.value.trim(); // MEJORADO: trim para evitar espacios
-        if(dni === ultimoDniBuscado) return;
-
-        if(dni.length === 8) {
-            ultimoDniBuscado = dni;
-            limpiarAlerta();
-            try {
-                // 1. CONSULTA AL MAPA GENERAL
-                const respMapa = await fetch(SCRIPT_MAPA);
-                const dataMapa = await respMapa.json();
-                const n = dataMapa.find(x => x.dniHijo == dni);
-
-                let avisos = [];
-
-                if(n) {
-                    document.getElementById('nombreInput').value = n.nombreHijo;
-                    const fNac = n.nacimientoHijo ? n.nacimientoHijo.split("T")[0] : "";
-                    document.getElementById('nacInput').value = aLatino(fNac);
-                    document.getElementById('telInput').value = n.celular;
-                    document.getElementById('hcInput').value = n.hc || "";
-                    document.getElementById('sectorInput').value = n.sector || "";
-                    
-                    if(n.anemia === "SI" || n.dxAnemia === "ANEMIA") {
-                        globalAnemia = "SI";
-                    }
-                    
-                    let inas = [];
-                    if(n.citaFaltante) inas.push("ANEMIA (" + n.citaFaltante + ")");
-                    if(n.citaCred) inas.push("CRED (" + n.citaCred + ")");
-                    if(n.citaVacuna) inas.push("VACUNAS (" + n.citaVacuna + ")");
-                    
-                    if(inas.length > 0) {
-                        globalInasistencias = inas.join(" | ");
-                        avisos.push("⚠️ <b>PENDIENTES:</b> " + globalInasistencias);
-                    }
-                    calcularEdadCita();
-                } else {
-                    habilitarManual();
-                }
-
-                // 2. CONSULTA AL SCRIPT DE CITAS (CON CÁLCULOS DE ANEMIA)
-                const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
-                const dH = await rH.json();
-                
-                if(dH.esAnemico) {
-                    globalAnemia = "SI"; 
-                    avisos.push("🔴 <b>NIÑO IDENTIFICADO EN PADRÓN ANÉMICOS</b>");
-                    
-                    // AGREGADO: Mostrar fechas de tratamiento dinámicamente
-                    if(dH.detallesAnemia && dH.detallesAnemia.fechaInicio) {
-                        const divAnemia = document.getElementById('anemiaDetails');
-                        divAnemia.style.display = 'block';
-                        divAnemia.innerHTML = `
-                            <i class="fa-solid fa-vial-circle-check"></i> 
-                            <b>TRATAMIENTO:</b><br>
-                            📅 Inicio: ${dH.detallesAnemia.fechaInicio}<br>
-                            ✅ Alta Probable: ${dH.detallesAnemia.fechaAlta} (+7 meses)
-                        `;
-                    }
-                } else if (globalAnemia === "SI") {
-                    avisos.push("🔴 <b>ALERTA:</b> NIÑO CON ANEMIA (Verificar en Padrón)");
-                }
-
-                if(!n) {
-                    const totalAvisos = (dH.vecesAdvertido || 0) + 1;
-                    avisos.push(`📝 Falta actualizar georeferencia. (Aviso: ${totalAvisos})`);
-                    document.getElementById('finalAviso').value = `ACTUALIZAR DATOS (${totalAvisos}° VEZ)`;
-                }
-
-                if(avisos.length > 0) {
-                    document.getElementById('alertInasistencia').style.display = 'flex';
-                    document.getElementById('inaMsg').innerHTML = avisos.join("<hr style='border:0; border-top:1px solid #fecaca; margin:5px 0;'>");
-                }
-
-                if(dH.encontrado && dH.historial) {
-                    const list = document.getElementById('listaHistorial');
-                    list.innerHTML = '';
-                    dH.historial.reverse().slice(0,3).forEach(c => {
-                        let fLimpia = c.fecha;
-                        if(fLimpia.includes("-")) {
-                             const partes = fLimpia.split("T")[0].split("-");
-                             fLimpia = `${partes[2]}/${partes[1]}/${partes[0]}`;
-                        }
-                        // MEJORADO: Badge de color según consultorio
-                        const colorBadge = c.consultorio === 'CRED' ? 'var(--primary)' : 'var(--warning)';
-                        list.innerHTML += `<div class="historial-item"><span>${fLimpia} - ${c.turno}</span> <b style="background:${colorBadge}20; color:${colorBadge}">${c.consultorio}</b></div>`;
-                    });
-                    document.getElementById('boxHistorial').style.display = 'block';
-                }
-            } catch(e) { console.error("Error en búsqueda:", e); }
-        } else {
-            ultimoDniBuscado = "";
-        }
-    });
-
-    function habilitarManual() {
-        lanzarModal("Falta actualizar georeferencia del Niñ@. Ingrese datos manualmente.", "📝");
-        document.querySelectorAll('#nombreInput, #telInput, #nacInput, #hcInput, #sectorInput').forEach(el => { 
-            el.readOnly = false; el.style.background = "white"; 
-        });
     }
 
     const validarTodo = async () => {
@@ -456,7 +454,7 @@
 
     function limpiarAlerta() {
         document.getElementById('alertInasistencia').style.display = 'none';
-        document.getElementById('anemiaDetails').style.display = 'none'; // LIMPIAR AGREGADO
+        document.getElementById('anemiaDetails').style.display = 'none';
         document.getElementById('boxHistorial').style.display = 'none';
         document.getElementById('finalAviso').value = "";
         globalAnemia = "NO"; globalInasistencias = "NINGUNA";
