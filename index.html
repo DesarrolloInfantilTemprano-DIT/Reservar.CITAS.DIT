@@ -200,7 +200,7 @@
 </div>
 
 <script>
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbyrFUAsnPvFltrnXz_LCAEcaKPPG7rG2CU4tikTuEYNyVBr0f4lDz-aBUNzPHjbO_EE/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbxLEAVIc2DTpy1ozCCYtotJH_kEJRh9X6SA6TZFXvuWz-TqXFzVx5aFhhR8jiYMqufURQ/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
 
     let globalAnemia = "NO";
@@ -308,9 +308,14 @@
                 const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dH = await rH.json();
                 
+                // MEJORA: Mostrar detalles de Anemia con Fecha de Alta
                 if(dH.esAnemico) {
                     globalAnemia = "SI"; 
-                    if(!avisos.includes("🔴 ALERTA: NIÑO CON ANEMIA")) avisos.push("🔴 ALERTA: REGISTRADO EN PADRÓN ANÉMICOS");
+                    let msgAnemia = "🔴 <b>PADRÓN ANÉMICOS:</b>";
+                    if(dH.detallesAnemia && dH.detallesAnemia.fechaInicio) {
+                        msgAnemia += `<br>📅 Inicio: ${dH.detallesAnemia.fechaInicio} | ✅ Alta: ${dH.detallesAnemia.fechaAlta}`;
+                    }
+                    avisos.push(msgAnemia);
                 }
 
                 if(!n) {
@@ -328,7 +333,6 @@
                     const list = document.getElementById('listaHistorial');
                     list.innerHTML = '';
                     dH.historial.reverse().slice(0,3).forEach(c => {
-                        // MEJORA: Limpieza rigurosa de formato ISO en visualización
                         let fLimpia = c.fecha;
                         if(fLimpia.includes("-")) {
                              const partes = fLimpia.split("T")[0].split("-");
