@@ -226,7 +226,6 @@
         return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : f;
     };
 
-    // --- BÚSQUEDA INTEGRADA CORREGIDA ---
     document.getElementById('dniInput').addEventListener('input', async (e) => {
         const dni = e.target.value.trim();
         if(dni === ultimoDniBuscado) return;
@@ -253,25 +252,24 @@
                 document.getElementById('sectorInput').value = dataCenso.sector || "";
                 document.getElementById('btnEnviar').disabled = false;
 
-                // 2. CONSULTA AL MAPA (CORRECCIÓN SEGÚN TU EXCEL)
+                // 2. CONSULTA AL MAPA (ANEMIA)
                 const respMapa = await fetch(SCRIPT_MAPA);
                 const dataMapa = await respMapa.json();
                 
-                // Buscamos coincidencia exacta de DNI en el JSON del mapa
                 const n = dataMapa.find(x => String(x.DNI).trim() === dni || String(x.dniHijo).trim() === dni);
 
                 let avisos = [];
 
                 if(n) {
-                    // Si está en el mapa, activamos alerta de anemia
                     globalAnemia = "SI";
                     avisos.push("🔴 <b>PACIENTE EN SEGUIMIENTO POR ANEMIA</b>");
                     
-                    // Procesar FechaInicio (usando el nombre exacto de tu Excel)
+                    // --- LÓGICA DE ALTA POR ANEMIA ---
                     if(n.FechaInicio) {
                         const partes = n.FechaInicio.split("/");
                         if(partes.length === 3) {
                             const fInicio = new Date(partes[2], partes[1]-1, partes[0]);
+                            // Sumamos 7 meses (6 de tratamiento + 1 de recuperación para el alta definitiva)
                             fInicio.setMonth(fInicio.getMonth() + 7);
                             const fAlta = `${fInicio.getDate().toString().padStart(2,'0')}/${(fInicio.getMonth()+1).toString().padStart(2,'0')}/${fInicio.getFullYear()}`;
                             
