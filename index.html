@@ -252,7 +252,7 @@
                 document.getElementById('sectorInput').value = dataCenso.sector || "";
                 document.getElementById('btnEnviar').disabled = false;
 
-                // 2. CONSULTA AL MAPA PARA ALERTAS (Hoja Anemicos integrada)
+                // 2. CONSULTA AL MAPA (ÚNICA FUENTE PARA ANEMIA)
                 const respMapa = await fetch(SCRIPT_MAPA);
                 const dataMapa = await respMapa.json();
                 const n = dataMapa.find(x => x.dniHijo == dni || x.dni == dni);
@@ -260,12 +260,11 @@
                 let avisos = [];
 
                 if(n) {
-                    // Mejora: Reconocimiento por nombre de hoja o bandera de anemia
+                    // Lógica corregida: Solo SCRIPT_MAPA define anemia
                     if(n.hoja === "Anemicos" || n.anemia === "SI" || n.dxAnemia === "ANEMIA") {
                         globalAnemia = "SI";
                         avisos.push("🔴 <b>PACIENTE EN SEGUIMIENTO POR ANEMIA</b>");
                         
-                        // Si trae Fecha de Inicio, calculamos el alta (7 meses)
                         if(n.FechaInicio) {
                             const [d, m, y] = n.FechaInicio.split("/");
                             const fInicio = new Date(y, m-1, d);
@@ -294,16 +293,9 @@
                     }
                 }
 
-                // 3. CONSULTA AL SCRIPT DE CITAS (HISTORIAL)
+                // 3. CONSULTA AL SCRIPT DE CITAS (SOLO HISTORIAL)
                 const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
                 const dH = await rH.json();
-                
-                if(dH.esAnemico) {
-                    globalAnemia = "SI"; 
-                    if(!avisos.some(a => a.includes("ANEMIA"))) {
-                         avisos.push("🔴 <b>NIÑO IDENTIFICADO EN PADRÓN ANÉMICOS</b>");
-                    }
-                }
 
                 if(!n) {
                     const totalAvisos = (dH.vecesAdvertido || 0) + 1;
