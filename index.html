@@ -307,7 +307,7 @@
             const dataCenso = await respCenso.json();
 
             if (!dataCenso) {
-                lanzarModal("Usuario Nuevo, registre sus datos en Módulo Censo - Admisión", "🚫");
+                lanzarModal("Usuario Nuevo, registre sus datos en Módulo Censo", "🚫");
                 bloquearFormulario();
                 return; 
             }
@@ -330,7 +330,7 @@
             // --- LÓGICA DE ANEMIA (Solo hoja "Anemicos" de Citas) ---
             if(respAnemicosCitas && respAnemicosCitas.esAnemico) {
                 globalAnemia = "SI";
-                avisos.push("🔴 <b>PACIENTE EN SEGUIMIENTO POR ANEMIA</b>");
+                avisos.push("🔴 <b>PACIENTE EN TRATAMIENTO DE ANEMIA</b>");
                 
                 let fechaRef = respAnemicosCitas.fechaInicio;
                 if(fechaRef && fechaRef.includes("/")) {
@@ -351,13 +351,13 @@
             const n = respMapa.find(x => String(x.DNI).trim() === dni || String(x.dniHijo).trim() === dni);
             if(n) {
                 let inas = [];
-                if(n.citaFaltante) inas.push("FALTA: " + n.citaFaltante);
-                if(n.citaCred) inas.push("CRED: " + n.citaCred);
-                if(n.citaVacuna) inas.push("VACUNAS: " + n.citaVacuna);
+                if(n.citaFaltante) inas.push("Faltó al Tratamiento de Anemia del: " + n.citaFaltante);
+                if(n.citaCred) inas.push("CRED desde: " + n.citaCred);
+                if(n.citaVacuna) inas.push("Vacunas Imcompletas: " + n.citaVacuna);
                 
                 if(inas.length > 0) {
                     globalInasistencias = inas.join(" | ");
-                    avisos.push("⚠️ <b>PENDIENTES MAPA:</b> " + globalInasistencias);
+                    avisos.push("⚠️ <b>PENDIENTES:</b> " + globalInasistencias);
                 }
             }
 
@@ -512,7 +512,7 @@
         fD.append("ALERTA_INASISTENCIA", globalInasistencias);
 
         fetch(SCRIPT_CITAS, { method: 'POST', body: fD }).then(() => { 
-            lanzarModal("REGISTRO EXITOSO EN CASTILLO GRANDE", "✅"); 
+            lanzarModal("REGISTRO EXITOSO", "✅"); 
             setTimeout(() => location.reload(), 2000); 
         }).catch(() => {
             lanzarModal("Error de conexión.", "❌");
