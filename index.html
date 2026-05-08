@@ -253,7 +253,7 @@
 <script>
     const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbxORQP9UVrLtaqwYV6HhgvH2Mpi0iBQLkdBDPdJqNiF1nMi7CAHTC7IqoM7oRw3jU_TvQ/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzdHC87qNYw0h0Fa6nIu05T8wjXCv20i-PZ1IKEYjdNMxnX8IOZnTGoCAkh9Pnux4gPxw/exec';
-    const SCRIPT_CENSO = 'https://script.google.com/macros/s/AKfycbyUZovmsNawKbd-Xym-MFbl0gJF_8wl6qj2MDGy-QL-IsJGnYZNPrR7_ezTwl5NsAgPbg/exec';
+    const SCRIPT_CENSO = 'https://script.google.com/macros/s/AKfycby0pukp-deu88CNY2BeMQawPyzifCEFroECFpA6DszbxTLUX7rzaZ7LhkV38Rk224E11w/exec';
 
     let globalAnemia = "NO";
     let globalInasistencias = "NINGUNA";
@@ -279,11 +279,10 @@
     }
 
     function bloquearFormulario() {
-        // Celular NO se bloquea, solo los demas
         document.querySelectorAll('#nombreInput, #nacInput, #hcInput, #sectorInput').forEach(el => { 
             el.readOnly = true; el.style.background = "#f1f5f9"; el.value = "";
         });
-        document.getElementById('telInput').value = ""; // Limpia pero sigue editable
+        document.getElementById('telInput').value = ""; 
         document.getElementById('btnEnviar').disabled = true;
     }
 
@@ -490,7 +489,7 @@
     document.getElementById('turnoInput').addEventListener('change', validarTodo);
     document.getElementById('consInput').addEventListener('change', validarTodo);
 
-    document.getElementById('citaForm').addEventListener('submit', function(e) {
+    document.getElementById('citaForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         if(document.getElementById('edadInput').value === "") {
             lanzarModal("Verifique las fechas.", "⚠️");
@@ -498,6 +497,9 @@
         }
 
         const btn = document.getElementById('btnEnviar');
+        const dni = document.getElementById('dniInput').value;
+        const tel = document.getElementById('telInput').value;
+
         btn.disabled = true; btn.innerText = "REGISTRANDO...";
 
         document.getElementById('finalNac').value = document.getElementById('nacInput').value;
@@ -507,13 +509,21 @@
         fD.append("ALERTA_ANEMIA", globalAnemia);
         fD.append("ALERTA_INASISTENCIA", globalInasistencias);
 
-        fetch(SCRIPT_CITAS, { method: 'POST', body: fD }).then(() => { 
-            lanzarModal("REGISTRO EXITOSO", "✅"); 
+        try {
+            // 1. Actualizar Celular en el Censo
+            const urlUpdate = `${SCRIPT_CENSO}?action=updatePhone&dni=${dni}&tel=${tel}`;
+            await fetch(urlUpdate, { mode: 'no-cors' }); 
+
+            // 2. Registrar la Cita
+            await fetch(SCRIPT_CITAS, { method: 'POST', body: fD });
+
+            lanzarModal("REGISTRO Y CELULAR ACTUALIZADOS", "✅"); 
             setTimeout(() => location.reload(), 2000); 
-        }).catch(() => {
-            lanzarModal("Error de conexión.", "❌");
+
+        } catch (error) {
+            lanzarModal("Error al procesar el registro.", "❌");
             btn.disabled = false; btn.innerText = "CONFIRMAR REGISTRO";
-        });
+        }
     });
 
     function limpiarAlerta() {
