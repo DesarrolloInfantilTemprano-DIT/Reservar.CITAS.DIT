@@ -321,46 +321,47 @@
 
             let avisos = [];
 
-            // 2. BUSQUEDA DE ANEMIA (Se busca en MAPA y ahora también en la hoja ANEMICOS de CITAS)
+            // 2. CONSULTAS EN PARALELO
             const [respMapa, respAnemicosCitas] = await Promise.all([
                 fetch(SCRIPT_MAPA).then(r => r.json()),
-                fetch(`${SCRIPT_CITAS}?action=buscarAnemico&dni=${dni}`).then(r => r.json()) // Nueva condición
+                fetch(`${SCRIPT_CITAS}?action=buscarAnemico&dni=${dni}`).then(r => r.json())
             ]);
 
-            // Combinar lógica de MAPA y hoja Anemicos de CITAS
-            const n = respMapa.find(x => String(x.DNI).trim() === dni || String(x.dniHijo).trim() === dni);
-            
-            // Si aparece en cualquiera de los dos como anémico
-            if(n || respAnemicosCitas.esAnemico) {
+            // --- LÓGICA DE ANEMIA (Solo hoja "Anemicos" de Citas) ---
+            if(respAnemicosCitas && respAnemicosCitas.esAnemico) {
                 globalAnemia = "SI";
                 avisos.push("🔴 <b>PACIENTE EN SEGUIMIENTO POR ANEMIA</b>");
                 
-                // Prioridad a datos del Mapa para fechas, si no, lo que devuelva Citas
-                let fechaRef = n ? n.FechaInicio : respAnemicosCitas.fechaInicio;
-                
+                let fechaRef = respAnemicosCitas.fechaInicio;
                 if(fechaRef && fechaRef.includes("/")) {
                     const partes = fechaRef.split("/");
                     const fInicio = new Date(partes[2], partes[1]-1, partes[0]);
                     fInicio.setMonth(fInicio.getMonth() + 7);
                     const fAlta = `${fInicio.getDate().toString().padStart(2,'0')}/${(fInicio.getMonth()+1).toString().padStart(2,'0')}/${fInicio.getFullYear()}`;
+                    
                     const divAnemia = document.getElementById('anemiaDetails');
                     divAnemia.style.display = 'block';
-                    divAnemia.innerHTML = `<i class="fa-solid fa-vial-circle-check"></i> <b>TRATAMIENTO:</b><br>📅 Inicio: ${fechaRef}<br>✅ Alta Probable: ${fAlta}`;
+                    divAnemia.innerHTML = `<i class="fa-solid fa-vial-circle-check"></i> <b>TRATAMIENTO ANEMIA:</b><br>📅 Inicio: ${fechaRef}<br>✅ Alta Probable: ${fAlta}`;
                 }
+            } else {
+                globalAnemia = "NO";
+            }
 
-                if(n) {
-                    let inas = [];
-                    if(n.citaFaltante) inas.push("ANEMIA (" + n.citaFaltante + ")");
-                    if(n.citaCred) inas.push("CRED (" + n.citaCred + ")");
-                    if(n.citaVacuna) inas.push("VACUNAS (" + n.citaVacuna + ")");
-                    if(inas.length > 0) {
-                        globalInasistencias = inas.join(" | ");
-                        avisos.push("⚠️ <b>PENDIENTES:</b> " + globalInasistencias);
-                    }
+            // --- LÓGICA DE OTRAS CONDICIONES (Mapa) ---
+            const n = respMapa.find(x => String(x.DNI).trim() === dni || String(x.dniHijo).trim() === dni);
+            if(n) {
+                let inas = [];
+                if(n.citaFaltante) inas.push("FALTA: " + n.citaFaltante);
+                if(n.citaCred) inas.push("CRED: " + n.citaCred);
+                if(n.citaVacuna) inas.push("VACUNAS: " + n.citaVacuna);
+                
+                if(inas.length > 0) {
+                    globalInasistencias = inas.join(" | ");
+                    avisos.push("⚠️ <b>PENDIENTES MAPA:</b> " + globalInasistencias);
                 }
-            } else { globalAnemia = "NO"; }
+            }
 
-            // 3. Buscar Historial en Citas
+            // 3. Buscar Historial en Citas (Hoja Sheet1)
             const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
             const dH = await rH.json();
 
@@ -370,6 +371,7 @@
                 document.getElementById('finalAviso').value = `ACTUALIZAR DATOS (${totalAvisos}° VEZ)`;
             }
 
+            // --- MOSTRAR ALERTAS ---
             if(avisos.length > 0) {
                 document.getElementById('alertInasistencia').style.display = 'flex';
                 document.getElementById('inaMsg').innerHTML = avisos.join("<hr style='border:0; border-top:1px solid #fecaca; margin:5px 0;'>");
