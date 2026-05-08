@@ -510,17 +510,20 @@
         fD.append("ALERTA_INASISTENCIA", globalInasistencias);
 
         try {
-            // 1. Actualizar Celular en el Censo
-            const urlUpdate = `${SCRIPT_CENSO}?action=updatePhone&dni=${dni}&tel=${tel}`;
-            await fetch(urlUpdate, { mode: 'no-cors' }); 
+            // 1. Sincronizar actualización con el Censo (Usamos 'actualizarTel' para coincidir con el Apps Script)
+            const urlUpdate = `${SCRIPT_CENSO}?action=actualizarTel&dni=${dni}&telefono=${tel}`;
+            
+            // Disparo asíncrono para no retrasar la cita
+            fetch(urlUpdate, { mode: 'no-cors' }); 
 
-            // 2. Registrar la Cita
+            // 2. Registrar la Cita en su hoja correspondiente
             await fetch(SCRIPT_CITAS, { method: 'POST', body: fD });
 
             lanzarModal("REGISTRO Y CELULAR ACTUALIZADOS", "✅"); 
             setTimeout(() => location.reload(), 2000); 
 
         } catch (error) {
+            console.error(error);
             lanzarModal("Error al procesar el registro.", "❌");
             btn.disabled = false; btn.innerText = "CONFIRMAR REGISTRO";
         }
