@@ -57,7 +57,7 @@
         input:focus { border-color: var(--primary); outline: none; }
         input:required { border-left: 4px solid var(--danger); }
         .historial-box {
-            background: #f8fafc; border-radius: 166px; padding: 15px;
+            background: #f8fafc; border-radius: 16px; padding: 15px;
             margin-bottom: 20px; display: none; border: 1px solid #e2e8f0;
         }
         .historial-item { font-size: 12px; display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
@@ -164,7 +164,7 @@
                 </div>
                 <div class="input-group">
                     <label>CELULAR *</label>
-                    <input type="text" name="CELULAR" id="telInput" required readonly style="background:#f1f5f9">
+                    <input type="text" name="CELULAR" id="telInput" required placeholder="Ingrese celular" style="background:#ffffff">
                 </div>
             </div>
             <div class="input-group">
@@ -279,9 +279,11 @@
     }
 
     function bloquearFormulario() {
-        document.querySelectorAll('#nombreInput, #telInput, #nacInput, #hcInput, #sectorInput').forEach(el => { 
+        // Celular NO se bloquea, solo los demas
+        document.querySelectorAll('#nombreInput, #nacInput, #hcInput, #sectorInput').forEach(el => { 
             el.readOnly = true; el.style.background = "#f1f5f9"; el.value = "";
         });
+        document.getElementById('telInput').value = ""; // Limpia pero sigue editable
         document.getElementById('btnEnviar').disabled = true;
     }
 
@@ -302,9 +304,8 @@
         limpiarAlerta();
         
         try {
-            // 1. Buscar en CENSO para datos básicos
-            const respCenso = await fetch(`${SCRIPT_CENSO}?action=buscar&dni=${dni}`);
-            const dataCenso = await respCenso.json();
+            const respCeno = await fetch(`${SCRIPT_CENSO}?action=buscar&dni=${dni}`);
+            const dataCenso = await respCeno.json();
 
             if (!dataCenso) {
                 lanzarModal("Usuario Nuevo, registre sus datos en Módulo Censo", "🚫");
@@ -314,20 +315,18 @@
 
             document.getElementById('nombreInput').value = dataCenso.nombreB || "";
             document.getElementById('nacInput').value    = dataCenso.fn || "";
-            document.getElementById('hcInput').value     = dataCenso.hclinica || "";
+            document.getElementById('hcInput').value      = dataCenso.hclinica || "";
             document.getElementById('telInput').value    = dataCenso.telefono || "";
             document.getElementById('sectorInput').value = dataCenso.sector || "";
             document.getElementById('btnEnviar').disabled = false;
 
             let avisos = [];
 
-            // 2. CONSULTAS EN PARALELO
             const [respMapa, respAnemicosCitas] = await Promise.all([
                 fetch(SCRIPT_MAPA).then(r => r.json()),
                 fetch(`${SCRIPT_CITAS}?action=buscarAnemico&dni=${dni}`).then(r => r.json())
             ]);
 
-            // --- LÓGICA DE ANEMIA (Solo hoja "Anemicos" de Citas) ---
             if(respAnemicosCitas && respAnemicosCitas.esAnemico) {
                 globalAnemia = "SI";
                 avisos.push("🔴 <b>PACIENTE EN TRATAMIENTO DE ANEMIA</b>");
@@ -347,7 +346,6 @@
                 globalAnemia = "NO";
             }
 
-            // --- LÓGICA DE OTRAS CONDICIONES (Mapa) ---
             const n = respMapa.find(x => String(x.DNI).trim() === dni || String(x.dniHijo).trim() === dni);
             if(n) {
                 let inas = [];
@@ -361,7 +359,6 @@
                 }
             }
 
-            // 3. Buscar Historial en Citas (Hoja Sheet1)
             const rH = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
             const dH = await rH.json();
 
@@ -371,7 +368,6 @@
                 document.getElementById('finalAviso').value = `ACTUALIZAR DATOS (${totalAvisos}° VEZ)`;
             }
 
-            // --- MOSTRAR ALERTAS ---
             if(avisos.length > 0) {
                 document.getElementById('alertInasistencia').style.display = 'flex';
                 document.getElementById('inaMsg').innerHTML = avisos.join("<hr style='border:0; border-top:1px solid #fecaca; margin:5px 0;'>");
