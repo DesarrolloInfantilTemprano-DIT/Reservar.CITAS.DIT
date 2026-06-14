@@ -15,7 +15,7 @@
             --secondary: #10b981; 
             --warning: #f59e0b;
             --danger: #ef4444; 
-            --card: #ffffff;
+            --card: rgba(255, 255, 255, 0.96);
             --anemia-bg: #fff1f2; 
             --anemia-border: #fda4af;
         }
@@ -27,32 +27,32 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 50%, #fef2f2 100%);
-            background-attachment: fixed;
             margin: 0; padding: 0; color: #1e293b;
-            min-height: 100vh; display: flex; justify-content: center; align-items: stretch;
+            height: 100vh; width: 100vw;
+            overflow: hidden; /* Evita el scroll global en computadoras */
+            display: flex; justify-content: center; align-items: center;
+            position: relative;
         }
 
-        /* Ocupación de pantalla completa adaptada a móviles y escritorio */
+        /* Sistema de Fondo Animado de Niños del Mundo */
+        #bg-slideshow {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2; background-size: cover; background-position: center;
+            transition: background-image 1.5s ease-in-out;
+        }
+        .bg-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; background: rgba(15, 23, 42, 0.2);
+            backdrop-filter: blur(10px); /* Filtro para alta legibilidad del texto */
+        }
+
+        /* Contenedor adaptado a pantalla completa a 2 columnas fijas */
         .container {
-            width: 100%;
-            max-width: 650px;
-            background: var(--card);
-            padding: 24px 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        @media (min-width: 600px) {
-            body { padding: 20px; }
-            .container {
-                border-radius: 32px;
-                min-height: auto;
-                box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.15);
-                padding: 35px;
-            }
+            width: 96%; max-width: 1150px; height: 96vh;
+            background: var(--card); border-radius: 32px; padding: 20px 30px;
+            box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.2); border: 1px solid rgba(255,255,255,0.3);
+            display: flex; flex-direction: column; justify-content: space-between;
+            box-sizing: border-box;
         }
 
         .modal-overlay {
@@ -67,133 +67,119 @@
         }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        /* Encabezado elegante e infantil */
-        .header { text-align: center; margin-bottom: 25px; position: relative; }
+        /* Encabezado */
+        .header { text-align: center; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; }
         .header .avatar-icon {
-            width: 70px; height: 70px; background: linear-gradient(135deg, #6366f1, #ff6b81); 
-            border-radius: 22px; margin: 0 auto 12px; display: flex; align-items: center; 
-            justify-content: center; color: white; font-size: 28px;
-            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+            width: 45px; height: 45px; background: linear-gradient(135deg, #6366f1, #ff6b81); 
+            border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2); margin: 0;
         }
-        .header h2 { margin: 0; color: #312e81; font-weight: 800; font-size: 24px; letter-spacing: -0.5px; }
-        .header p { font-size: 13px; color: #4f46e5; font-weight: 700; margin: 4px 0 0; background: var(--primary-light); display: inline-block; padding: 4px 14px; border-radius: 20px; }
+        .header h2 { margin: 0; color: #312e81; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
+        .header p { font-size: 11px; color: #4f46e5; font-weight: 700; margin: 0; background: var(--primary-light); padding: 3px 12px; border-radius: 20px; }
 
-        /* Alertas */
-        .alert-box {
-            padding: 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
-            margin-bottom: 20px; display: none; flex-direction: column; gap: 8px;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
-        }
-        .alert-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
-        .anemia-info-card {
-            background: var(--anemia-bg); border: 1px solid var(--anemia-border);
-            padding: 12px; border-radius: 14px; margin-top: 6px; font-size: 12px; color: #9f1239;
-        }
-
-        /* Secciones del Formulario Blandas/Infantiles */
-        .form-section { 
-            background: #f8fafc; 
-            padding: 22px; 
-            border-radius: 24px; 
-            margin-bottom: 20px; 
-            border: 2px solid #edf2f7;
-            position: relative;
-        }
-        .form-section:nth-of-type(2) {
-            background: #f0fdf4; /* Tono menta suave para atención */
-            border-color: #dcfce7;
-        }
-        .section-title { 
-            font-size: 12px; font-weight: 800; color: #64748b; 
-            text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 6px;
-        }
-
-        /* Elementos de entrada optimizados para móvil (Touch friendly) */
-        .input-group { margin-bottom: 16px; }
-        label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; }
-        
-        input, select {
-            width: 100%; padding: 14px; border-radius: 16px;
-            border: 2px solid #e2e8f0; font-size: 15px; font-weight: 600; color: #1e293b;
-            background-color: white; transition: all 0.2s ease; box-sizing: border-box;
-            outline: none;
-        }
-        input:focus, select:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15); 
-        }
-        input:required { border-left: 5px solid var(--accent-kids); }
-
-        /* Botón de lupa estilizado */
-        .btn-lupa {
-            background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; border: none; border-radius: 16px; 
-            padding: 0 20px; cursor: pointer; transition: all 0.2s; font-size: 16px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .btn-lupa:hover { transform: scale(1.03); }
-
-        /* Caja de Historial Optimizada */
-        .historial-box {
-            background: #f1f5f9; border-radius: 22px; padding: 18px;
-            margin-bottom: 20px; display: none; border: 2px solid #e2e8f0;
-        }
-        .historial-item { 
-            font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; 
-            align-items: center; padding: 10px 0; border-bottom: 1px solid #e2e8f0; 
-        }
-        .historial-item:last-child { border-bottom: none; }
-        .historial-item b { color: var(--primary); background: white; padding: 4px 10px; border-radius: 10px; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .btn-edit-historial { 
-            background: #ffffff; border: 1px solid #cbd5e1; color: var(--primary); 
-            cursor: pointer; font-size: 14px; padding: 6px 10px; border-radius: 10px; 
-            margin-left: 8px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .btn-edit-historial:hover { background: var(--primary); color: white; border-color: var(--primary); }
-
-        /* Botones de acción principal */
-        .btn-submit {
-            width: 100%; padding: 16px; background: linear-gradient(135deg, #4f46e5, #6366f1); color: white;
-            border: none; border-radius: 18px; font-weight: 800; font-size: 16px;
-            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
-            margin-top: 10px;
-        }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(79, 70, 229, 0.35); }
-        .btn-submit:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; }
-
-        /* Componentes Adicionales y Contadores */
-        .badge-adicional {
-            display: none; background: #fff7ed; border: 2px solid #fed7aa;
-            padding: 14px; border-radius: 16px; margin-top: 12px;
-        }
-        .contador-vivos {
-            background: #e0f2fe; color: #0369a1; padding: 14px; border-radius: 16px;
-            font-size: 13px; font-weight: 700; margin-bottom: 16px; display: none;
-            border: 1px solid #bae6fd; align-items: center; gap: 10px;
+        /* Layout en 2 columnas paralelas para evitar scroll en escritorio */
+        .main-layout {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; margin-bottom: 10px; min-height: 0;
         }
 
         /* Indicador de Modo Edición */
         .indicador-modo-edicion {
             display: none; background: #fef3c7; border: 2px solid #fde68a; color: #92400e;
-            padding: 14px; border-radius: 18px; font-size: 13px; font-weight: 700; margin-bottom: 20px;
-            justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+            padding: 10px 16px; border-radius: 16px; font-size: 12px; font-weight: 700; margin-bottom: 10px;
+            justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.05);
+            animation: slideIn 0.3s ease;
         }
 
-        /* Utilidades y Paneles Secundarios */
-        .toggle-report {
-            text-align: center; margin-top: 25px; font-size: 13px; font-weight: 800; 
-            color: var(--primary); cursor: pointer; display: block; padding: 10px; border-radius: 12px; transition: 0.2s;
+        /* Alertas */
+        .alert-box {
+            padding: 12px 16px; border-radius: 18px; font-size: 13px; font-weight: 600;
+            margin-bottom: 10px; display: none; flex-direction: column; gap: 6px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.05); animation: slideIn 0.3s ease;
         }
+        .alert-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .anemia-info-card {
+            background: var(--anemia-bg); border: 1px solid var(--anemia-border);
+            padding: 10px; border-radius: 12px; margin-top: 4px; font-size: 11px; color: #9f1239;
+        }
+
+        /* Secciones del Formulario */
+        .form-section { 
+            background: #f8fafc; padding: 15px 20px; border-radius: 22px; border: 2px solid #edf2f7;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .form-section:nth-of-type(2) { background: #f0fdf4; border-color: #dcfce7; }
+        .section-title { 
+            font-size: 11px; font-weight: 800; color: #64748b; 
+            text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+        }
+
+        /* Campos de Entrada */
+        .input-group { margin-bottom: 10px; }
+        label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+        input, select {
+            width: 100%; padding: 11px 14px; border-radius: 14px;
+            border: 2px solid #e2e8f0; font-size: 14px; font-weight: 600; color: #1e293b;
+            background-color: white; transition: all 0.2s ease; box-sizing: border-box; outline: none;
+        }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        input:required { border-left: 5px solid var(--accent-kids); }
+
+        .btn-lupa {
+            background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; border: none; border-radius: 14px; 
+            padding: 0 18px; cursor: pointer; transition: all 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-lupa:hover { transform: scale(1.02); }
+
+        /* Caja de Historial */
+        .historial-box {
+            background: #f1f5f9; border-radius: 18px; padding: 12px 16px;
+            margin-bottom: 10px; display: none; border: 2px solid #e2e8f0;
+        }
+        .historial-item { 
+            font-size: 12px; font-weight: 700; display: flex; justify-content: space-between; 
+            align-items: center; padding: 6px 0; border-bottom: 1px solid #e2e8f0; 
+        }
+        .historial-item:last-child { border-bottom: none; }
+        .historial-item b { color: var(--primary); background: white; padding: 3px 8px; border-radius: 8px; font-size: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .btn-edit-historial { 
+            background: #ffffff; border: 1px solid #cbd5e1; color: var(--primary); 
+            cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 8px; 
+            margin-left: 8px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+        .btn-edit-historial:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Botones de acción */
+        .btn-submit {
+            width: 100%; padding: 14px; background: linear-gradient(135deg, #4f46e5, #6366f1); color: white;
+            border: none; border-radius: 16px; font-weight: 800; font-size: 15px;
+            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 16px rgba(79, 70, 229, 0.2); margin-top: 5px;
+        }
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25); }
+        .btn-submit:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        .badge-adicional { display: none; background: #fff7ed; border: 2px solid #fed7aa; padding: 10px; border-radius: 14px; margin-top: 8px; }
+        .contador-vivos { background: #e0f2fe; color: #0369a1; padding: 10px 14px; border-radius: 14px; font-size: 12px; font-weight: 700; margin-bottom: 12px; display: none; border: 1px solid #bae6fd; align-items: center; gap: 10px; }
+
+        .toggle-report { text-align: center; margin-top: 10px; font-size: 12px; font-weight: 800; color: var(--primary); cursor: pointer; display: block; padding: 6px; border-radius: 10px; transition: 0.2s; }
         .toggle-report:hover { background: var(--primary-light); }
-        .report-section { border-top: 4px solid var(--secondary); background: #ffffff; }
-        .btn-excel {
-            width: 100%; padding: 14px; background: var(--secondary); color: white; 
-            border: none; border-radius: 14px; font-weight: 800; cursor: pointer;
-            margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+        .report-section { border-top: 4px solid var(--secondary); background: #ffffff; margin-top: 5px; display: none; padding: 15px; }
+        .btn-excel { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .admin-trigger { text-align: center; margin-top: 5px; font-size: 11px; color: #94a3b8; cursor: pointer; text-decoration: underline; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Responsivo celular */
+        @media (max-width: 768px) {
+            body { height: auto; overflow: auto; }
+            .container { height: auto; min-height: 100vh; border-radius: 0; padding: 15px; width: 100%; }
+            .main-layout { grid-template-columns: 1fr; gap: 15px; }
         }
-        .admin-trigger { text-align: center; margin-top: auto; padding-top: 25px; font-size: 12px; color: #94a3b8; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
+
+<div id="bg-slideshow"></div>
+<div class="bg-overlay"></div>
 
 <div id="modalCustom" class="modal-overlay">
     <div class="modal-box">
@@ -208,8 +194,10 @@
         <div class="avatar-icon">
             <i class="fa-solid fa-child-reaching"></i>
         </div>
-        <h2>Sistema de Citas</h2>
-        <p>C.S. CASTILLO GRANDE</p>
+        <div>
+            <h2>Sistema de Citas</h2>
+            <p>C.S. CASTILLO GRANDE</p>
+        </div>
     </div>
 
     <div id="modoEdicionBox" class="indicador-modo-edicion">
@@ -230,83 +218,87 @@
         <div id="listaHistorial"></div>
     </div>
 
-    <form id="citaForm">
-        <div class="form-section">
-            <span class="section-title"><i class="fa-solid fa-id-card" style="color: var(--accent-kids)"></i> Información del Niño</span>
-            <div class="input-group">
-                <label>DNI *</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="number" name="DNI" id="dniInput" required oninput="if(this.value.length > 8) this.value = this.value.slice(0, 8);" placeholder="Escriba el DNI">
-                    <button type="button" class="btn-lupa" onclick="buscarDNI()">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>NOMBRE *</label>
-                <input type="text" name="NOMBRE" id="nombreInput" required readonly style="background:#f1f5f9; color: #475569;">
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                <div class="input-group">
-                    <label>F. NACIMIENTO *</label>
-                    <input type="text" id="nacInput" required readonly style="background:#f1f5f9; color: #475569;" placeholder="DD/MM/YYYY">
-                </div>
-                <div class="input-group">
-                    <label>EDAD A LA CITA</label>
-                    <input type="text" name="EDAD" id="edadInput" readonly style="background:#f1f5f9; color:var(--primary); font-weight:800;">
-                </div>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                <div class="input-group">
-                    <label>HISTORIA CLÍNICA *</label>
-                    <input type="text" name="HC" id="hcInput" required readonly style="background:#f1f5f9; color: #475569;" placeholder="N° HC">
-                </div>
-                <div class="input-group">
-                    <label>CELULAR *</label>
-                    <input type="text" name="CELULAR" id="telInput" required placeholder="Número telefónico">
-                </div>
-            </div>
-            <div class="input-group">
-                <label>SECTOR / DIRECCIÓN *</label>
-                <input type="text" name="SECTOR" id="sectorInput" required readonly style="background:#f1f5f9; color: #475569;" placeholder="Sector de vivienda">
-            </div>
-        </div>
-
-        <div class="form-section">
-            <span class="section-title"><i class="fa-solid fa-stethoscope" style="color: var(--secondary)"></i> Detalles de la Atención</span>
+    <form id="citaForm" style="display: contents;">
+        <div class="main-layout">
             
-            <div id="infoCitas" class="contador-vivos">
-                <i class="fa-solid fa-users-viewfinder"></i>
-                <span id="textoContador">Seleccione fecha para ver ocupación.</span>
-            </div>
-
-            <div class="input-group">
-                <label>CONSULTORIO *</label>
-                <select name="CONSULTORIO" id="consInput" required>
-                    <option value="CRED">🩺 CRED (Crecimiento y Desarrollo)</option>
-                    <option value="VACUNATORIO">🩺 VACUNATORIO-ESNI</option>
-                </select>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="form-section">
+                <span class="section-title"><i class="fa-solid fa-id-card" style="color: var(--accent-kids)"></i> Información del Niño</span>
                 <div class="input-group">
-                    <label>FECHA CITA *</label>
-                    <input type="date" id="citaInput" required>
+                    <label>DNI *</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" name="DNI" id="dniInput" required oninput="if(this.value.length > 8) this.value = this.value.slice(0, 8);" placeholder="Escriba el DNI">
+                        <button type="button" class="btn-lupa" onclick="buscarDNI()">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="input-group">
-                    <label>TURNO *</label>
-                    <select name="TURNO" id="turnoInput" required>
-                        <option value="MAÑANA">MAÑANA (18 Cupos)</option>
-                        <option value="TARDE">TARDE (6 Cupos)</option>
+                    <label>NOMBRE *</label>
+                    <input type="text" name="NOMBRE" id="nombreInput" required readonly style="background:#f1f5f9; color: #475569;">
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <div class="input-group">
+                        <label>F. NACIMIENTO *</label>
+                        <input type="text" id="nacInput" required readonly style="background:#f1f5f9; color: #475569;" placeholder="DD/MM/YYYY">
+                    </div>
+                    <div class="input-group">
+                        <label>EDAD A LA CITA</label>
+                        <input type="text" name="EDAD" id="edadInput" readonly style="background:#f1f5f9; color:var(--primary); font-weight:800;">
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <div class="input-group">
+                        <label>HISTORIA CLÍNICA *</label>
+                        <input type="text" name="HC" id="hcInput" required readonly style="background:#f1f5f9; color: #475569;" placeholder="N° HC">
+                    </div>
+                    <div class="input-group">
+                        <label>CELULAR *</label>
+                        <input type="text" name="CELULAR" id="telInput" required placeholder="Número telefónico">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>SECTOR / DIRECCIÓN *</label>
+                    <input type="text" name="SECTOR" id="sectorInput" required readonly style="background:#f1f5f9; color: #475569;" placeholder="Sector de vivienda">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <span class="section-title"><i class="fa-solid fa-stethoscope" style="color: var(--secondary)"></i> Detalles de la Atención</span>
+                
+                <div id="infoCitas" class="contador-vivos">
+                    <i class="fa-solid fa-users-viewfinder"></i>
+                    <span id="textoContador">Seleccione fecha para ver ocupación.</span>
+                </div>
+
+                <div class="input-group">
+                    <label>CONSULTORIO *</label>
+                    <select name="CONSULTORIO" id="consInput" required>
+                        <option value="CRED">🩺 CRED (Crecimiento y Desarrollo)</option>
+                        <option value="VACUNATORIO">🩺 VACUNATORIO-ESNI</option>
                     </select>
                 </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <div class="input-group">
+                        <label>FECHA CITA *</label>
+                        <input type="date" id="citaInput" required>
+                    </div>
+                    <div class="input-group">
+                        <label>TURNO *</label>
+                        <select name="TURNO" id="turnoInput" required>
+                            <option value="MAÑANA">MAÑANA (18 Cupos)</option>
+                            <option value="TARDE">TARDE (6 Cupos)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="boxAdicional" class="badge-adicional">
+                    <label style="display:flex; align-items:center; gap:10px; color:#9a3412; font-size:13px; cursor:pointer;">
+                        <input type="checkbox" name="ES_ADICIONAL" id="checkAdicional" value="true" style="width:auto; margin:0;">
+                        <span><b>CUPOS AGOTADOS.</b> Acepto registrar como adicional.</span>
+                    </label>
+                </div>
             </div>
 
-            <div id="boxAdicional" class="badge-adicional">
-                <label style="display:flex; align-items:center; gap:10px; color:#9a3412; font-size:13px; cursor:pointer;">
-                    <input type="checkbox" name="ES_ADICIONAL" id="checkAdicional" value="true" style="width:auto; margin:0;">
-                    <span><b>CUPOS AGOTADOS.</b> Acepto registrar como adicional.</span>
-                </label>
-            </div>
         </div>
 
         <input type="hidden" name="FECHA_NACIMIENTO" id="finalNac">
@@ -354,6 +346,30 @@
 </div>
 
 <script>
+    // Listado de 10 imágenes infantiles de diversas culturas para el fondo rotativo cada 20s
+    const imagenesKids = [
+        "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=1200&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=1200&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?q=80&w=1200&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?q=80&w=1200&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?q=80&w=1200&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1200&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1560250056-07ba370dedc2?q=80&w=1200&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1531123414780-f74242c2b052?q=80&w=1200&auto=format&fit=crop", 
+        "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop"
+    ];
+
+    let currentImgIdx = 0;
+    function rotarFondo() {
+        const bgDiv = document.getElementById('bg-slideshow');
+        bgDiv.style.backgroundImage = `url('${imagenesKids[currentImgIdx]}')`;
+        currentImgIdx = (currentImgIdx + 1) % imagenesKids.length;
+    }
+    // Inicializar carrusel cada 20 segundos
+    rotarFondo();
+    setInterval(rotarFondo, 20000);
+
     const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbzb-F-PF40S54e3KDycJH0C6mZ9tq-7OqhpF67sU4OehizCSsnGeQw1KtM-yzq1SKn9jg/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzFJPWYyiVo1d5lJnG6LtRRkCp6pOyvfvMbApsa1GWTr02m4b2NLLvV7XyKOIyPVVcCmg/exec';
     const SCRIPT_CENSO = 'https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec';
@@ -408,7 +424,6 @@
         cancelarEdicion();
         
         try {
-            // OPTIMIZACIÓN PASO 1: Traer datos del Censo e Historial inmediatamente en paralelo
             const [respCeno, rH] = await Promise.all([
                 fetch(`${SCRIPT_CENSO}?action=buscar&dni=${dni}`).then(r => r.json()),
                 fetch(`${SCRIPT_CITAS}?dni=${dni}`).then(r => r.json())
@@ -427,12 +442,10 @@
             document.getElementById('sectorInput').value = respCeno.sector || "";
             document.getElementById('btnEnviar').disabled = false;
 
-            // OPTIMIZACIÓN PASO 2: Renderizado veloz e inmediato del Historial en el Front sin demoras de procesos internos
             if(rH && rH.encontrado && rH.historial) {
                 const list = document.getElementById('listaHistorial');
                 list.innerHTML = '';
                 
-                // Muestra todo el historial de forma inversa directamente sin recortes pesados
                 rH.historial.reverse().forEach(c => {
                     let fLimpia = c.fecha;
                     if(fLimpia.includes("-")) {
@@ -454,7 +467,6 @@
                 document.getElementById('boxHistorial').style.display = 'block';
             }
 
-            // OPTIMIZACIÓN PASO 3: Ejecutar alertas de georeferencia y mapas de forma diferida en segundo plano
             let avisos = [];
             const [respMapa, respAnemicosCitas] = await Promise.all([
                 fetch(SCRIPT_MAPA).then(r => r.json()).catch(() => []),
@@ -511,7 +523,6 @@
         }
     }
 
-    // Carga los datos seleccionados directamente al formulario para reprogramar
     function cargarCitaParaEdicion(fecha, turno, consultorio) {
         document.getElementById('esEdicion').value = "true";
         document.getElementById('fechaOriginal').value = fecha;
@@ -535,7 +546,6 @@
         btn.innerText = "REPROGRAMAR / ACTUALIZAR CITA";
         btn.style.background = "linear-gradient(135deg, var(--warning), #f59e0b)";
         
-        // Enfoca automáticamente la sección de fecha para facilitar el cambio en celular
         document.getElementById('citaInput').scrollIntoView({ behavior: 'smooth' });
         validarTodo();
     }
