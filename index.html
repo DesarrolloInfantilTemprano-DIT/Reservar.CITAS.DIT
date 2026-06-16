@@ -683,7 +683,7 @@
         document.getElementById('edadInput').value = resultado;
     }
 
-    /* FUNCIÓN ACTUALIZADA: Lee la URL del JSON devuelta por el Backend y ejecuta una descarga binaria real impecable */
+    /* SOLUCIÓN TOTALMENTE ROBUSTA PARA EVITAR EL ERROR DE CONEXIÓN */
     function descargarExcel() {
         const desde = aLatino(document.getElementById('repDesde').value);
         const hasta = aLatino(document.getElementById('repHasta').value);
@@ -694,32 +694,26 @@
             return;
         }
 
-        lanzarModal("Generando reporte...", "⏳");
-        
+        // Armamos la URL exacta con la acción de exportar
         const url = `${SCRIPT_CITAS}?exportar=true&desde=${desde}&hasta=${hasta}&cons=${cons}`;
         
-        // Ejecutamos la petición asíncrona para obtener la URL procesada
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.url) {
-                    cerrarModal();
-                    
-                    // Creamos el elemento virtual interactivo de descarga nativa
-                    const linkDescarga = document.createElement('a');
-                    linkDescarga.href = data.url;
-                    linkDescarga.style.display = 'none';
-                    document.body.appendChild(linkDescarga);
-                    linkDescarga.click(); // Forzamos la descarga del binario original sin alteraciones de string
-                    document.body.removeChild(linkDescarga); // Limpiamos el DOM
-                } else {
-                    lanzarModal("Error al obtener el enlace de descarga.", "❌");
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                lanzarModal("Error de conexión al generar el Excel.", "❌");
-            });
+        // Lanzamos un modal temporal informativo sutil
+        lanzarModal("Generando archivo Excel...", "⏳");
+        
+        // Creamos un elemento interactivo nativo e invisible para disparar la descarga directa
+        const linkDescarga = document.createElement('a');
+        linkDescarga.href = url;
+        linkDescarga.target = '_blank'; // Abrir de forma segura en pestaña paralela para evitar bloqueos del Sandbox de Google
+        linkDescarga.style.display = 'none';
+        document.body.appendChild(linkDescarga);
+        
+        linkDescarga.click(); // Forzamos la descarga binaria nativa
+        document.body.removeChild(linkDescarga); // Limpiamos el DOM de inmediato
+
+        // Ocultamos el modal automáticamente después de 3 segundos
+        setTimeout(() => {
+            cerrarModal();
+        }, 3000);
     }
 
     const validarTodo = async () => {
