@@ -18,6 +18,14 @@
             --card: rgba(255, 255, 255, 0.96);
             --anemia-bg: #fff1f2; 
             --anemia-border: #fda4af;
+            
+            /* Nuevos colores para el toque lúdico/infantil */
+            --kids-yellow: #ffb830;
+            --kids-green: #3db2ff;
+            --kids-purple: #9254de;
+            --kids-soft-bg: #f3f8fe;
+            --text-dark: #2c3e50;
+            --border-playful: #e2ebf6;
         }
         
         * {
@@ -27,152 +35,230 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0; padding: 0; color: #1e293b;
-            height: 100vh; width: 100vw;
-            overflow: hidden; /* Evita el scroll global en computadoras */
+            margin: 0; padding: 0; color: var(--text-dark);
+            min-height: 100vh; width: 100vw;
+            overflow-x: hidden;
             display: flex; justify-content: center; align-items: center;
             position: relative;
+            background-color: #eaf4ff;
         }
 
         /* Sistema de Fondo Animado de Niños del Mundo */
         #bg-slideshow {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -2; background-size: cover; background-position: center;
             transition: background-image 1.5s ease-in-out;
         }
         .bg-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; background: rgba(15, 23, 42, 0.2);
-            backdrop-filter: blur(10px); /* Filtro para alta legibilidad del texto */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; background: rgba(240, 247, 255, 0.4);
+            backdrop-filter: blur(12px) saturate(120%); /* Incremento de nitidez y viveza */
         }
 
-        /* Contenedor adaptado a pantalla completa a 2 columnas fijas */
+        /* Contenedor adaptado - quitamos alturas fijas limitantes para evitar cortes */
         .container {
-            width: 96%; max-width: 1150px; height: 96vh;
-            background: var(--card); border-radius: 32px; padding: 20px 30px;
-            box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.2); border: 1px solid rgba(255,255,255,0.3);
-            display: flex; flex-direction: column; justify-content: space-between;
+            width: 96%; max-width: 1150px; 
+            margin: 20px auto;
+            background: var(--card); 
+            border-radius: 36px; 
+            padding: 25px 35px;
+            box-shadow: 0 25px 60px -15px rgba(79, 70, 229, 0.15), 0 0 0 10px rgba(255, 255, 255, 0.6); 
+            border: 2px solid #ffffff;
+            display: flex; flex-direction: column; 
             box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Decoración Infantil Sutil (Nubes/Burbujas en esquinas) */
+        .container::before {
+            content: '🎈'; position: absolute; top: -25px; left: 30px; font-size: 35px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+        .container::after {
+            content: '🧸'; position: absolute; top: -20px; right: 30px; font-size: 32px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }
 
         .modal-overlay {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(15, 23, 42, 0.6); z-index: 9999; align-items: center; justify-content: center;
-            backdrop-filter: blur(4px);
+            background: rgba(44, 62, 80, 0.5); z-index: 9999; align-items: center; justify-content: center;
+            backdrop-filter: blur(6px);
         }
         .modal-box {
-            background: white; padding: 30px 25px; border-radius: 24px; max-width: 340px; 
-            width: 90%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            background: white; padding: 35px 30px; border-radius: 28px; max-width: 380px; 
+            width: 90%; text-align: center; 
+            box-shadow: 0 24px 38px -5px rgba(44, 62, 80, 0.15), 0 0 0 6px var(--primary-light);
             animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid var(--primary-light);
         }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        /* Encabezado */
-        .header { text-align: center; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; }
-        .header .avatar-icon {
-            width: 45px; height: 45px; background: linear-gradient(135deg, #6366f1, #ff6b81); 
-            border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2); margin: 0;
+        /* Encabezado con aspecto infantil y amigable */
+        .header { 
+            text-align: center; 
+            margin-bottom: 20px; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
         }
-        .header h2 { margin: 0; color: #312e81; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
-        .header p { font-size: 11px; color: #4f46e5; font-weight: 700; margin: 0; background: var(--primary-light); padding: 3px 12px; border-radius: 20px; }
+        .header-main-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header .avatar-icon {
+            width: 55px; height: 55px; 
+            background: linear-gradient(135deg, #ff6b81, #ffb830); 
+            border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;
+            box-shadow: 0 6px 14px rgba(255, 107, 129, 0.3); margin: 0;
+            transform: rotate(-5deg);
+            animation: float 4s ease-in-out infinite alternate;
+        }
+        @keyframes float {
+            0% { transform: translateY(0) rotate(-5deg); }
+            100% { transform: translateY(-4px) rotate(5deg); }
+        }
+        .header h2 { margin: 0; color: #1e1b4b; font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
+        .header p { 
+            font-size: 12px; color: #ffffff; font-weight: 800; margin: 2px 0 0 0; 
+            background: linear-gradient(90deg, var(--primary), #6366f1); 
+            padding: 4px 16px; border-radius: 20px; 
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);
+            display: inline-block;
+            letter-spacing: 0.5px;
+        }
 
-        /* Layout en 2 columnas paralelas para evitar scroll en escritorio */
+        /* Layout en 2 columnas paralelas */
         .main-layout {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; margin-bottom: 10px; min-height: 0;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 20px;
         }
 
         /* Indicador de Modo Edición */
         .indicador-modo-edicion {
-            display: none; background: #fef3c7; border: 2px solid #fde68a; color: #92400e;
-            padding: 10px 16px; border-radius: 16px; font-size: 12px; font-weight: 700; margin-bottom: 10px;
-            justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.05);
+            display: none; background: #fffbeb; border: 2px solid #fef3c7; color: #b45309;
+            padding: 12px 18px; border-radius: 18px; font-size: 12px; font-weight: 700; margin-bottom: 15px;
+            justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.08);
             animation: slideIn 0.3s ease;
         }
 
         /* Alertas */
         .alert-box {
-            padding: 12px 16px; border-radius: 18px; font-size: 13px; font-weight: 600;
-            margin-bottom: 10px; display: none; flex-direction: column; gap: 6px;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.05); animation: slideIn 0.3s ease;
+            padding: 14px 18px; border-radius: 20px; font-size: 13px; font-weight: 600;
+            margin-bottom: 15px; display: none; flex-direction: column; gap: 8px;
+            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.08); animation: slideIn 0.3s ease;
         }
-        .alert-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .alert-danger { background: #fff5f5; color: #c53030; border: 2px solid #fed7d7; }
         .anemia-info-card {
             background: var(--anemia-bg); border: 1px solid var(--anemia-border);
-            padding: 10px; border-radius: 12px; margin-top: 4px; font-size: 11px; color: #9f1239;
+            padding: 12px; border-radius: 14px; margin-top: 6px; font-size: 12px; color: #9f1239;
+            line-height: 1.5;
         }
 
-        /* Secciones del Formulario */
+        /* Secciones del Formulario de estilo lúdico redondeado */
         .form-section { 
-            background: #f8fafc; padding: 15px 20px; border-radius: 22px; border: 2px solid #edf2f7;
-            display: flex; flex-direction: column; justify-content: center;
+            background: var(--kids-soft-bg); 
+            padding: 20px 24px; 
+            border-radius: 26px; 
+            border: 2px dashed var(--border-playful);
+            display: flex; flex-direction: column; justify-content: flex-start;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
         }
-        .form-section:nth-of-type(2) { background: #f0fdf4; border-color: #dcfce7; }
+        .form-section:nth-of-type(2) { 
+            background: #f0fdf4; 
+            border-color: #bbf7d0; 
+        }
         .section-title { 
-            font-size: 11px; font-weight: 800; color: #64748b; 
-            text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 800; color: #4a5568; 
+            text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;
+            letter-spacing: 0.5px;
         }
 
-        /* Campos de Entrada */
-        .input-group { margin-bottom: 10px; }
-        label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+        /* Campos de Entrada Redondeados y Seguros */
+        .input-group { margin-bottom: 14px; }
+        label { display: block; font-size: 12px; font-weight: 700; color: #4a5568; margin-bottom: 6px; }
         input, select {
-            width: 100%; padding: 11px 14px; border-radius: 14px;
-            border: 2px solid #e2e8f0; font-size: 14px; font-weight: 600; color: #1e293b;
-            background-color: white; transition: all 0.2s ease; box-sizing: border-box; outline: none;
+            width: 100%; padding: 12px 16px; border-radius: 16px;
+            border: 2px solid #cbd5e1; font-size: 14px; font-weight: 600; color: #1e293b;
+            background-color: white; transition: all 0.25s ease; box-sizing: border-box; outline: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        input:focus, select:focus { 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+            background-color: #ffffff;
+        }
         input:required { border-left: 5px solid var(--accent-kids); }
 
         .btn-lupa {
-            background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; border: none; border-radius: 14px; 
-            padding: 0 18px; cursor: pointer; transition: all 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; border: none; border-radius: 16px; 
+            padding: 0 20px; cursor: pointer; transition: all 0.2s; font-size: 15px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
         }
-        .btn-lupa:hover { transform: scale(1.02); }
+        .btn-lupa:hover { transform: scale(1.05); box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3); }
 
         /* Caja de Historial */
         .historial-box {
-            background: #f1f5f9; border-radius: 18px; padding: 12px 16px;
-            margin-bottom: 10px; display: none; border: 2px solid #e2e8f0;
+            background: #f8fafc; border-radius: 22px; padding: 15px 20px;
+            margin-bottom: 15px; display: none; border: 2px solid #e2e8f0;
         }
         .historial-item { 
             font-size: 12px; font-weight: 700; display: flex; justify-content: space-between; 
-            align-items: center; padding: 6px 0; border-bottom: 1px solid #e2e8f0; 
+            align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; 
         }
         .historial-item:last-child { border-bottom: none; }
-        .historial-item b { color: var(--primary); background: white; padding: 3px 8px; border-radius: 8px; font-size: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .historial-item b { color: var(--primary); background: white; padding: 4px 10px; border-radius: 10px; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .btn-edit-historial { 
             background: #ffffff; border: 1px solid #cbd5e1; color: var(--primary); 
-            cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 8px; 
+            cursor: pointer; font-size: 13px; padding: 5px 10px; border-radius: 10px; 
             margin-left: 8px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.03);
         }
         .btn-edit-historial:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Botones de acción */
-        .btn-submit {
-            width: 100%; padding: 14px; background: linear-gradient(135deg, #4f46e5, #6366f1); color: white;
-            border: none; border-radius: 16px; font-weight: 800; font-size: 15px;
-            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 16px rgba(79, 70, 229, 0.2); margin-top: 5px;
+        /* Botón de acción - Integrado de forma natural (NO FLOTANTE) */
+        .submit-container {
+            margin-top: 10px;
+            width: 100%;
         }
-        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25); }
+        .btn-submit {
+            width: 100%; padding: 16px; 
+            background: linear-gradient(135deg, #4f46e5, #6366f1); color: white;
+            border: none; border-radius: 20px; font-weight: 800; font-size: 16px;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1); 
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25); 
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .btn-submit:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 12px 24px rgba(79, 70, 229, 0.35); 
+        }
+        .btn-submit:active {
+            transform: translateY(0);
+        }
         .btn-submit:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; }
 
-        .badge-adicional { display: none; background: #fff7ed; border: 2px solid #fed7aa; padding: 10px; border-radius: 14px; margin-top: 8px; }
-        .contador-vivos { background: #e0f2fe; color: #0369a1; padding: 10px 14px; border-radius: 14px; font-size: 12px; font-weight: 700; margin-bottom: 12px; display: none; border: 1px solid #bae6fd; align-items: center; gap: 10px; }
+        .badge-adicional { display: none; background: #fff7ed; border: 2px solid #fed7aa; padding: 12px; border-radius: 16px; margin-top: 10px; }
+        .contador-vivos { background: #e0f2fe; color: #0369a1; padding: 12px 16px; border-radius: 16px; font-size: 12px; font-weight: 700; margin-bottom: 14px; display: none; border: 1px solid #bae6fd; align-items: center; gap: 10px; }
 
-        .toggle-report { text-align: center; margin-top: 10px; font-size: 12px; font-weight: 800; color: var(--primary); cursor: pointer; display: block; padding: 6px; border-radius: 10px; transition: 0.2s; }
+        /* Enlaces de administración e informes estilizados */
+        .toggle-report { text-align: center; margin-top: 15px; font-size: 12px; font-weight: 800; color: var(--primary); cursor: pointer; display: block; padding: 8px; border-radius: 12px; transition: 0.2s; }
         .toggle-report:hover { background: var(--primary-light); }
-        .report-section { border-top: 4px solid var(--secondary); background: #ffffff; margin-top: 5px; display: none; padding: 15px; }
-        .btn-excel { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .admin-trigger { text-align: center; margin-top: 5px; font-size: 11px; color: #94a3b8; cursor: pointer; text-decoration: underline; }
+        .report-section { border-top: 4px solid var(--secondary); background: #ffffff; margin-top: 8px; display: none; padding: 20px; border-radius: 22px; }
+        .btn-excel { width: 100%; padding: 14px; background: var(--secondary); color: white; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+        .btn-excel:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3); }
+        
+        .admin-trigger { text-align: center; margin-top: 12px; font-size: 11px; color: #94a3b8; cursor: pointer; text-decoration: underline; font-weight: 600; }
+        .admin-trigger:hover { color: #64748b; }
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Responsivo celular */
         @media (max-width: 768px) {
-            body { height: auto; overflow: auto; }
-            .container { height: auto; min-height: 100vh; border-radius: 0; padding: 15px; width: 100%; }
+            body { height: auto; overflow-y: auto; }
+            .container { height: auto; min-height: 100vh; border-radius: 0; padding: 20px 15px; width: 100%; margin: 0; box-shadow: none; border: none; }
+            .container::before, .container::after { display: none; }
             .main-layout { grid-template-columns: 1fr; gap: 15px; }
+            .header h2 { font-size: 22px; }
         }
     </style>
 </head>
@@ -183,21 +269,23 @@
 
 <div id="modalCustom" class="modal-overlay">
     <div class="modal-box">
-        <div id="modalIcon" style="font-size: 44px; margin-bottom: 12px;"></div>
-        <p id="modalText" style="font-weight: 700; color: #1e293b; margin-bottom: 22px; font-size: 15px; line-height: 1.4;"></p>
-        <button onclick="cerrarModal()" style="background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 14px; font-weight: 800; cursor: pointer; width: 100%;">Aceptar</button>
+        <div id="modalIcon" style="font-size: 48px; margin-bottom: 15px;"></div>
+        <p id="modalText" style="font-weight: 700; color: #1e293b; margin-bottom: 25px; font-size: 15px; line-height: 1.5;"></p>
+        <button onclick="cerrarModal()" style="background: linear-gradient(135deg, var(--primary), #6366f1); color: white; border: none; padding: 14px 30px; border-radius: 16px; font-weight: 800; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);">Aceptar</button>
     </div>
 </div>
 
 <div class="container">
     <div class="header">
-        <div class="avatar-icon">
-            <i class="fa-solid fa-child-reaching"></i>
+        <div class="header-main-row">
+            <div class="avatar-icon">
+                <i class="fa-solid fa-child-reaching"></i>
+            </div>
+            <div>
+                <h2>Sistema de Citas</h2>
+            </div>
         </div>
-        <div>
-            <h2>Sistema de Citas</h2>
-            <p>C.S. CASTILLO GRANDE</p>
-        </div>
+        <p>C.S. CASTILLO GRANDE</p>
     </div>
 
     <div id="modoEdicionBox" class="indicador-modo-edicion">
@@ -218,7 +306,8 @@
         <div id="listaHistorial"></div>
     </div>
 
-    <form id="citaForm" style="display: contents;">
+    <!-- El formulario envuelve el layout y el contenedor del botón para mantener el flujo estructural natural sin flotar -->
+    <form id="citaForm">
         <div class="main-layout">
             
             <div class="form-section">
@@ -308,7 +397,10 @@
         <input type="hidden" name="ES_EDICION" id="esEdicion" value="false">
         <input type="hidden" name="FECHA_ORIGINAL" id="fechaOriginal" value="">
         
-        <button type="submit" id="btnEnviar" class="btn-submit">CONFIRMAR REGISTRO</button>
+        <!-- Contenedor del Botón en flujo estático normal integrado (No flotante) -->
+        <div class="submit-container">
+            <button type="submit" id="btnEnviar" class="btn-submit">CONFIRMAR REGISTRO</button>
+        </div>
     </form>
 
     <span class="toggle-report" onclick="toggleReporte()">
@@ -363,14 +455,16 @@
     let currentImgIdx = 0;
     function rotarFondo() {
         const bgDiv = document.getElementById('bg-slideshow');
-        bgDiv.style.backgroundImage = `url('${imagenesKids[currentImgIdx]}')`;
-        currentImgIdx = (currentImgIdx + 1) % imagenesKids.length;
+        if(bgDiv) {
+            bgDiv.style.backgroundImage = `url('${imagenesKids[currentImgIdx]}')`;
+            currentImgIdx = (currentImgIdx + 1) % imagenesKids.length;
+        }
     }
     // Inicializar carrusel cada 20 segundos
     rotarFondo();
     setInterval(rotarFondo, 20000);
 
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbzb-F-PF40S54e3KDycJH0C6mZ9tq-7OqhpF67sU4OehizCSsnGeQw1KtM-yzq1SKn9jg/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbyck3gkM0PqW--Jcl2PJxejgfOovsrNJ077uPSc3lxthGVdC0aG1kA8N4PIGVTBn3RCYg/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzFJPWYyiVo1d5lJnG6LtRRkCp6pOyvfvMbApsa1GWTr02m4b2NLLvV7XyKOIyPVVcCmg/exec';
     const SCRIPT_CENSO = 'https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec';
 
