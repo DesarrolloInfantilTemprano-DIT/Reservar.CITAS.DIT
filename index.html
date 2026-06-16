@@ -19,7 +19,7 @@
             --anemia-bg: #fff1f2; 
             --anemia-border: #fda4af;
             
-            /* Nuevos colores para el toque lúdico/infantil */
+            /* Colores lúdicos infantiles */
             --kids-yellow: #ffb830;
             --kids-green: #3db2ff;
             --kids-purple: #9254de;
@@ -52,10 +52,10 @@
         .bg-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; background: rgba(240, 247, 255, 0.4);
-            backdrop-filter: blur(12px) saturate(120%); /* Incremento de nitidez y viveza */
+            backdrop-filter: blur(12px) saturate(120%);
         }
 
-        /* Contenedor adaptado - quitamos alturas fijas limitantes para evitar cortes */
+        /* Contenedor adaptado */
         .container {
             width: 96%; max-width: 1150px; 
             margin: 20px auto;
@@ -69,7 +69,7 @@
             position: relative;
         }
 
-        /* Decoración Infantil Sutil (Nubes/Burbujas en esquinas) */
+        /* Decoración Infantil Sutil */
         .container::before {
             content: '🎈'; position: absolute; top: -25px; left: 30px; font-size: 35px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }
@@ -91,7 +91,7 @@
         }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        /* Encabezado con aspecto infantil y amigable */
+        /* Encabezado */
         .header { 
             text-align: center; 
             margin-bottom: 20px; 
@@ -154,7 +154,7 @@
             line-height: 1.5;
         }
 
-        /* Secciones del Formulario de estilo lúdico redondeado */
+        /* Secciones del Formulario */
         .form-section { 
             background: var(--kids-soft-bg); 
             padding: 20px 24px; 
@@ -173,7 +173,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* Campos de Entrada Redondeados y Seguros */
+        /* Campos de Entrada */
         .input-group { margin-bottom: 14px; }
         label { display: block; font-size: 12px; font-weight: 700; color: #4a5568; margin-bottom: 6px; }
         input, select {
@@ -214,7 +214,7 @@
         }
         .btn-edit-historial:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Botón de acción - Integrado de forma natural (NO FLOTANTE) */
+        /* Botón de acción - Integrado estático */
         .submit-container {
             margin-top: 10px;
             width: 100%;
@@ -232,15 +232,13 @@
             transform: translateY(-2px); 
             box-shadow: 0 12px 24px rgba(79, 70, 229, 0.35); 
         }
-        .btn-submit:active {
-            transform: translateY(0);
-        }
+        .btn-submit:active { transform: translateY(0); }
         .btn-submit:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; }
 
         .badge-adicional { display: none; background: #fff7ed; border: 2px solid #fed7aa; padding: 12px; border-radius: 16px; margin-top: 10px; }
         .contador-vivos { background: #e0f2fe; color: #0369a1; padding: 12px 16px; border-radius: 16px; font-size: 12px; font-weight: 700; margin-bottom: 14px; display: none; border: 1px solid #bae6fd; align-items: center; gap: 10px; }
 
-        /* Enlaces de administración e informes estilizados */
+        /* Enlaces de administración e informes */
         .toggle-report { text-align: center; margin-top: 15px; font-size: 12px; font-weight: 800; color: var(--primary); cursor: pointer; display: block; padding: 8px; border-radius: 12px; transition: 0.2s; }
         .toggle-report:hover { background: var(--primary-light); }
         .report-section { border-top: 4px solid var(--secondary); background: #ffffff; margin-top: 8px; display: none; padding: 20px; border-radius: 22px; }
@@ -306,7 +304,6 @@
         <div id="listaHistorial"></div>
     </div>
 
-    <!-- El formulario envuelve el layout y el contenedor del botón para mantener el flujo estructural natural sin flotar -->
     <form id="citaForm">
         <div class="main-layout">
             
@@ -397,7 +394,6 @@
         <input type="hidden" name="ES_EDICION" id="esEdicion" value="false">
         <input type="hidden" name="FECHA_ORIGINAL" id="fechaOriginal" value="">
         
-        <!-- Contenedor del Botón en flujo estático normal integrado (No flotante) -->
         <div class="submit-container">
             <button type="submit" id="btnEnviar" class="btn-submit">CONFIRMAR REGISTRO</button>
         </div>
@@ -438,7 +434,6 @@
 </div>
 
 <script>
-    // Listado de 10 imágenes infantiles de diversas culturas para el fondo rotativo cada 20s
     const imagenesKids = [
         "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=1200&auto=format&fit=crop", 
         "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop", 
@@ -460,7 +455,6 @@
             currentImgIdx = (currentImgIdx + 1) % imagenesKids.length;
         }
     }
-    // Inicializar carrusel cada 20 segundos
     rotarFondo();
     setInterval(rotarFondo, 20000);
 
@@ -689,6 +683,7 @@
         document.getElementById('edadInput').value = resultado;
     }
 
+    /* SOLUCIÓN CORREGIDA PARA DESCARGAR EL EXCEL NATIVO SIN QUE GOOGLE RECHAZE LA CONEXIÓN */
     function descargarExcel() {
         const desde = aLatino(document.getElementById('repDesde').value);
         const hasta = aLatino(document.getElementById('repHasta').value);
@@ -701,7 +696,14 @@
 
         const url = `${SCRIPT_CITAS}?exportar=true&desde=${desde}&hasta=${hasta}&cons=${cons}`;
         lanzarModal("Iniciando descarga...", "⏳");
-        window.open(url, '_blank');
+        
+        // Creamos un elemento <a> invisible en caliente e inyectamos la descarga nativa
+        const linkDescarga = document.createElement('a');
+        linkDescarga.href = url;
+        linkDescarga.style.display = 'none';
+        document.body.appendChild(linkDescarga);
+        linkDescarga.click(); // Forzamos el click de descarga directa en segundo plano
+        document.body.removeChild(linkDescarga); // Limpiamos el DOM inmediatamente
     }
 
     const validarTodo = async () => {
