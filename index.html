@@ -280,7 +280,7 @@
                 <i class="fa-solid fa-child-reaching"></i>
             </div>
             <div>
-                <h2>SistemaD de Citas</h2>
+                <h2>Sistema de Citas</h2>
             </div>
         </div>
         <p>C.S. CASTILLO GRANDE</p>
@@ -683,7 +683,7 @@
         document.getElementById('edadInput').value = resultado;
     }
 
-    /* SOLUCIÓN TOTALMENTE ROBUSTA PARA EVITAR EL ERROR DE CONEXIÓN */
+    /* SOLUCIÓN MEJORADA CON APERTURA DE VENTANA NATIVA */
     function descargarExcel() {
         const desde = aLatino(document.getElementById('repDesde').value);
         const hasta = aLatino(document.getElementById('repHasta').value);
@@ -698,19 +698,12 @@
         const url = `${SCRIPT_CITAS}?exportar=true&desde=${desde}&hasta=${hasta}&cons=${cons}`;
         
         // Lanzamos un modal temporal informativo sutil
-        lanzarModal("Generando archivo Excel...", "⏳");
+        lanzarModal("Generando archivo Excel... Tu descarga iniciará en breve.", "⏳");
         
-        // Creamos un elemento interactivo nativo e invisible para disparar la descarga directa
-        const linkDescarga = document.createElement('a');
-        linkDescarga.href = url;
-        linkDescarga.target = '_blank'; // Abrir de forma segura en pestaña paralela para evitar bloqueos del Sandbox de Google
-        linkDescarga.style.display = 'none';
-        document.body.appendChild(linkDescarga);
-        
-        linkDescarga.click(); // Forzamos la descarga binaria nativa
-        document.body.removeChild(linkDescarga); // Limpiamos el DOM de inmediato
+        // Abrimos la URL en una pestaña limpia de manera nativa para evadir restricciones de sandbox
+        window.open(url, '_blank');
 
-        // Ocultamos el modal automáticamente después de 3 segundos
+        // Cerramos el aviso automáticamente tras 3 segundos
         setTimeout(() => {
             cerrarModal();
         }, 3000);
