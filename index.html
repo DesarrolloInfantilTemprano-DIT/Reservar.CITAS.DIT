@@ -10,8 +10,8 @@
         :root {
             --primary: #4f46e5; 
             --primary-light: #eef2ff;
-            --accent-kids: #ff6b81; /* Rosa/Pastel Infantil */
-            --bg-kids: #f0f7ff; /* Azul cielo sutil */
+            --accent-kids: #ff6b81; 
+            --bg-kids: #f0f7ff; 
             --secondary: #10b981; 
             --warning: #f59e0b;
             --danger: #ef4444; 
@@ -19,7 +19,6 @@
             --anemia-bg: #fff1f2; 
             --anemia-border: #fda4af;
             
-            /* Colores lúdicos infantiles */
             --kids-yellow: #ffb830;
             --kids-green: #3db2ff;
             --kids-purple: #9254de;
@@ -43,7 +42,6 @@
             background-color: #eaf4ff;
         }
 
-        /* Sistema de Fondo Animado de Niños del Mundo */
         #bg-slideshow {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -2; background-size: cover; background-position: center;
@@ -55,7 +53,6 @@
             backdrop-filter: blur(12px) saturate(120%);
         }
 
-        /* Contenedor adaptado */
         .container {
             width: 96%; max-width: 1150px; 
             margin: 20px auto;
@@ -69,7 +66,6 @@
             position: relative;
         }
 
-        /* Decoración Infantil Sutil */
         .container::before {
             content: '🎈'; position: absolute; top: -25px; left: 30px; font-size: 35px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }
@@ -91,7 +87,6 @@
         }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        /* Encabezado */
         .header { 
             text-align: center; 
             margin-bottom: 20px; 
@@ -128,12 +123,10 @@
             letter-spacing: 0.5px;
         }
 
-        /* Layout en 2 columnas paralelas */
         .main-layout {
             display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 20px;
         }
 
-        /* Indicador de Modo Edición */
         .indicador-modo-edicion {
             display: none; background: #fffbeb; border: 2px solid #fef3c7; color: #b45309;
             padding: 12px 18px; border-radius: 18px; font-size: 12px; font-weight: 700; margin-bottom: 15px;
@@ -141,7 +134,6 @@
             animation: slideIn 0.3s ease;
         }
 
-        /* Alertas */
         .alert-box {
             padding: 14px 18px; border-radius: 20px; font-size: 13px; font-weight: 600;
             margin-bottom: 15px; display: none; flex-direction: column; gap: 8px;
@@ -154,7 +146,6 @@
             line-height: 1.5;
         }
 
-        /* Secciones del Formulario */
         .form-section { 
             background: var(--kids-soft-bg); 
             padding: 20px 24px; 
@@ -173,7 +164,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Campos de Entrada */
         .input-group { margin-bottom: 14px; }
         label { display: block; font-size: 12px; font-weight: 700; color: #4a5568; margin-bottom: 6px; }
         input, select {
@@ -196,7 +186,6 @@
         }
         .btn-lupa:hover { transform: scale(1.05); box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3); }
 
-        /* Caja de Historial */
         .historial-box {
             background: #f8fafc; border-radius: 22px; padding: 15px 20px;
             margin-bottom: 15px; display: none; border: 2px solid #e2e8f0;
@@ -214,7 +203,6 @@
         }
         .btn-edit-historial:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Botón de acción - Integrado estático */
         .submit-container {
             margin-top: 10px;
             width: 100%;
@@ -238,7 +226,6 @@
         .badge-adicional { display: none; background: #fff7ed; border: 2px solid #fed7aa; padding: 12px; border-radius: 16px; margin-top: 10px; }
         .contador-vivos { background: #e0f2fe; color: #0369a1; padding: 12px 16px; border-radius: 16px; font-size: 12px; font-weight: 700; margin-bottom: 14px; display: none; border: 1px solid #bae6fd; align-items: center; gap: 10px; }
 
-        /* Enlaces de administración e informes */
         .toggle-report { text-align: center; margin-top: 15px; font-size: 12px; font-weight: 800; color: var(--primary); cursor: pointer; display: block; padding: 8px; border-radius: 12px; transition: 0.2s; }
         .toggle-report:hover { background: var(--primary-light); }
         .report-section { border-top: 4px solid var(--secondary); background: #ffffff; margin-top: 8px; display: none; padding: 20px; border-radius: 22px; }
@@ -250,7 +237,6 @@
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Responsivo celular */
         @media (max-width: 768px) {
             body { height: auto; overflow-y: auto; }
             .container { height: auto; min-height: 100vh; border-radius: 0; padding: 20px 15px; width: 100%; margin: 0; box-shadow: none; border: none; }
@@ -466,7 +452,7 @@
     rotarFondo();
     setInterval(rotarFondo, 20000);
 
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycby5aYaewSj22r_fDSO3IQVFVDFxyx758ZVT943Jd_I3cVij_-yeYmP2V3iviPx27bh7Ew/exec'; 
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbyNJ6i2CQ-bEv5U13z4s26KFr14yq1Oh1-MWXsibiehmK2STbxRH-fdUOJL6wHxQuO9iQ/exec'; 
     const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzFJPWYyiVo1d5lJnG6LtRRkCp6pOyvfvMbApsa1GWTr02m4b2NLLvV7XyKOIyPVVcCmg/exec';
     const SCRIPT_CENSO = 'https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec';
 
@@ -691,7 +677,7 @@
         document.getElementById('edadInput').value = resultado;
     }
 
-    /* DESCARGA SEGURA MEDIANTE PROCESAMIENTO BINARIO ASÍNCRONO BASE64 */
+    /* DESCARGA BLINDADA DOBLE ESCENARIO: COMPATIBLE CON RESPUESTA BINARIA Y REDIRECCIÓN DIRECTA */
     async function descargarExcel() {
         const desde = document.getElementById('repDesde').value;
         const hasta = document.getElementById('repHasta').value;
@@ -703,44 +689,46 @@
             return;
         }
 
-        // Armamos la URL asíncrona enviando los formatos de fecha YYYY-MM-DD puros
         const url = `${SCRIPT_CITAS}?exportar=true&desde=${desde}&hasta=${hasta}&cons=${cons}&turno=${turno}`;
-        lanzarModal("Procesando datos y empaquetando Excel... Espera un momento.", "⏳");
+        lanzarModal("Procesando datos... Si no inicia la descarga automática, revisa las ventanas emergentes.", "⏳");
 
         try {
             const response = await fetch(url);
-            if (!response.ok) throw new Error("Error de comunicación con el servidor de Google.");
+            if (!response.ok) throw new Error();
             
-            const respuestaJson = await response.json();
-            
-            if (respuestaJson.success && respuestaJson.base64Data) {
-                // Decodificamos la cadena Base64 que regresa el Google Script
-                const caracteresBinarios = atob(respuestaJson.base64Data);
-                const numerosBinarios = new Array(caracteresBinarios.length);
-                
-                for (let i = 0; i < caracteresBinarios.length; i++) {
-                    numerosBinarios[i] = caracteresBinarios.charCodeAt(i);
+            // Intentamos parsear JSON por si el script ya maneja Base64
+            const textoResp = await response.text();
+            try {
+                const respuestaJson = JSON.parse(textoResp);
+                if (respuestaJson.success && respuestaJson.base64Data) {
+                    const caracteresBinarios = atob(respuestaJson.base64Data);
+                    const numerosBinarios = new Array(caracteresBinarios.length);
+                    for (let i = 0; i < caracteresBinarios.length; i++) {
+                        numerosBinarios[i] = caracteresBinarios.charCodeAt(i);
+                    }
+                    const matrizBytes = new Uint8Array(numerosBinarios);
+                    const blobXlsx = new Blob([matrizBytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    
+                    const linkDescarga = document.createElement('a');
+                    linkDescarga.href = URL.createObjectURL(blobXlsx);
+                    linkDescarga.setAttribute('download', respuestaJson.archivoNombre || 'Reporte_Citados.xlsx');
+                    document.body.appendChild(linkDescarga);
+                    linkDescarga.click();
+                    document.body.removeChild(linkDescarga);
+                    cerrarModal();
+                    return;
                 }
-                
-                const matrizBytes = new Uint8Array(numerosBinarios);
-                const blobXlsx = new Blob([matrizBytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                
-                // Creación del enlace de descarga simulado
-                const linkDescarga = document.createElement('a');
-                linkDescarga.href = URL.createObjectURL(blobXlsx);
-                linkDescarga.setAttribute('download', respuestaJson.archivoNombre || 'Reporte_Citados.xlsx');
-                document.body.appendChild(linkDescarga);
-                
-                linkDescarga.click();
-                document.body.removeChild(linkDescarga);
+            } catch(e) {
+                // Si no era JSON, significa que tu script web app ejecuta una descarga tradicional por redirección directa
+                window.open(url, '_blank');
                 cerrarModal();
-            } else {
-                throw new Error("No se recibieron datos de descarga válidos.");
             }
 
         } catch (err) {
             console.error(err);
-            lanzarModal("Error al descargar. Asegúrate de haber guardado e implementado la nueva versión en tu Google Apps Script.", "❌");
+            // Método de respaldo absoluto: Forzar apertura directa del link macro
+            window.open(url, '_blank');
+            cerrarModal();
         }
     }
 
@@ -792,7 +780,7 @@
     document.getElementById('turnoInput').addEventListener('change', validarTodo);
     document.getElementById('consInput').addEventListener('change', validarTodo);
 
-    // --- ESCUCHA SUBMIT OPTIMIZADO Y BLINDADO ---
+    /* SUBMIT COMPATIBLE OPTIMIZADO PARA DESPLIEGUE EN GITHUB PAGES */
     document.getElementById('citaForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         if(document.getElementById('edadInput').value === "") {
@@ -805,22 +793,17 @@
         const tel = document.getElementById('telInput').value;
         const esEdit = document.getElementById('esEdicion').value === "true";
 
-        btn.disabled = true; 
-        btn.innerText = esEdit ? "ACTUALIZANDO..." : "REGISTRANDO...";
+        btn.disabled = true; btn.innerText = esEdit ? "ACTUALIZANDO..." : "REGISTRANDO...";
 
         document.getElementById('finalNac').value = document.getElementById('nacInput').value;
         document.getElementById('finalCita').value = aLatino(document.getElementById('citaInput').value);
 
-        // Convertimos el FormData nativo a URLSearchParams para asegurar que viaje limpio
-        // bajo la cabecera 'application/x-www-form-urlencoded' que requiere Google Script.
+        // Pasamos el contenido a URLSearchParams para evitar rebotes de cabeceras en producción
         const formData = new FormData(this);
         const params = new URLSearchParams();
-        
         for (const [key, value] of formData.entries()) {
             params.append(key, value);
         }
-        
-        // Adjuntamos las variables de alerta globales de la aplicación
         params.append("ALERTA_ANEMIA", globalAnemia);
         params.append("ALERTA_INASISTENCIA", globalInasistencias);
 
