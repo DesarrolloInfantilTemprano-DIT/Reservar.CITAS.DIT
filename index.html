@@ -792,6 +792,7 @@
     document.getElementById('turnoInput').addEventListener('change', validarTodo);
     document.getElementById('consInput').addEventListener('change', validarTodo);
 
+    // --- ESCUCHA SUBMIT OPTIMIZADO Y BLINDADO ---
     document.getElementById('citaForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         if(document.getElementById('edadInput').value === "") {
@@ -804,20 +805,34 @@
         const tel = document.getElementById('telInput').value;
         const esEdit = document.getElementById('esEdicion').value === "true";
 
-        btn.disabled = true; btn.innerText = esEdit ? "ACTUALIZANDO..." : "REGISTRANDO...";
+        btn.disabled = true; 
+        btn.innerText = esEdit ? "ACTUALIZANDO..." : "REGISTRANDO...";
 
         document.getElementById('finalNac').value = document.getElementById('nacInput').value;
         document.getElementById('finalCita').value = aLatino(document.getElementById('citaInput').value);
 
-        const fD = new FormData(this);
-        fD.append("ALERTA_ANEMIA", globalAnemia);
-        fD.append("ALERTA_INASISTENCIA", globalInasistencias);
+        // Convertimos el FormData nativo a URLSearchParams para asegurar que viaje limpio
+        // bajo la cabecera 'application/x-www-form-urlencoded' que requiere Google Script.
+        const formData = new FormData(this);
+        const params = new URLSearchParams();
+        
+        for (const [key, value] of formData.entries()) {
+            params.append(key, value);
+        }
+        
+        // Adjuntamos las variables de alerta globales de la aplicación
+        params.append("ALERTA_ANEMIA", globalAnemia);
+        params.append("ALERTA_INASISTENCIA", globalInasistencias);
 
         try {
             const urlUpdate = `${SCRIPT_CENSO}?action=actualizarTel&dni=${dni}&telefono=${tel}`;
             fetch(urlUpdate, { mode: 'no-cors' }); 
 
-            const response = await fetch(SCRIPT_CITAS, { method: 'POST', body: fD });
+            const response = await fetch(SCRIPT_CITAS, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString() 
+            });
             const resultText = await response.text();
 
             if (resultText === "Success_Edit" || esEdit) {
