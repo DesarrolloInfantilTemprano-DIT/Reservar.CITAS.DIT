@@ -506,23 +506,40 @@
         cancelarEdicion();
         
         try {
-            const [respCeno, rH] = await Promise.all([
-                fetch(`${SCRIPT_CENSO}?action=buscar&dni=${dni}`).then(r => r.json()),
-                fetch(`${SCRIPT_CITAS}?dni=${dni}`).then(r => r.json())
-            ]);
+            // 1. Consulta aislada al Censo para evitar falsas caídas de red
+            let respCeno;
+            try {
+                const resCensoRaw = await fetch(`${SCRIPT_CENSO}?action=buscar&dni=${dni}`);
+                respCeno = await resCensoRaw.json();
+            } catch (errCenso) {
+                console.error("Fallo leyendo Script de Censo:", errCenso);
+                lanzarModal("Error de comunicación con el servidor del Censo. Verifica permisos.", "❌");
+                return;
+            }
 
-            if (!respCeno) {
-                lanzarModal("Usuario Nuevo, registre sus datos en Módulo Censo", "🚫");
+            // 2. Validación precisa del estado de error estructurado del Apps Script
+            if (!respCeno || respCeno.status === "error") {
+                lanzarModal("Usuario Nuevo. Registre los datos del niño en el Módulo de Censo.", "🚫");
                 bloquearFormulario();
                 return; 
             }
 
+            // 3. Rellenar campos del formulario
             document.getElementById('nombreInput').value = respCeno.nombreB || "";
             document.getElementById('nacInput').value    = respCeno.fn || "";
-            document.getElementById('hcInput').value      = respCeno.hclinica || "";
+            document.getElementById('hcInput').value     = respCeno.hclinica || "";
             document.getElementById('telInput').value    = respCeno.telefono || "";
             document.getElementById('sectorInput').value = respCeno.sector || "";
             document.getElementById('btnEnviar').disabled = false;
+
+            // 4. Consulta aislada del historial de citas
+            let rH = null;
+            try {
+                const resCitasRaw = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
+                rH = await resCitasRaw.json();
+            } catch (errCitas) {
+                console.warn("No se pudo obtener el historial, se continúa:", errCitas);
+            }
 
             if(rH && rH.encontrado && rH.historial) {
                 const list = document.getElementById('listaHistorial');
@@ -549,11 +566,21 @@
                 document.getElementById('boxHistorial').style.display = 'block';
             }
 
+            // 5. Consultas asíncronas secundarias de mapas y tratamientos de anemia
+            let respMapa = [];
+            let respAnemicosCitas = null;
+            try {
+                const [rMapa, rAnemia] = await Promise.all([
+                    fetch(SCRIPT_MAPA).then(r => r.json()).catch(() => []),
+                    fetch(`${SCRIPT_CITAS}?action=buscarAnemico&dni=${dni}`).then(r => r.json()).catch(() => null)
+                ]);
+                respMapa = rMapa;
+                respAnemicosCitas = rAnemia;
+            } catch(e) {
+                console.warn("Fallo menor en módulos secundarios:", e);
+            }
+
             let avisos = [];
-            const [respMapa, respAnemicosCitas] = await Promise.all([
-                fetch(SCRIPT_MAPA).then(r => r.json()).catch(() => []),
-                fetch(`${SCRIPT_CITAS}?action=buscarAnemico&dni=${dni}`).then(r => r.json()).catch(() => null)
-            ]);
 
             if(respAnemicosCitas && respAnemicosCitas.esAnemico) {
                 globalAnemia = "SI";
@@ -572,7 +599,7 @@
                 }
             }
 
-            if(respMapa) {
+            if(respMapa && respMapa.length > 0) {
                 const n = respMapa.find(x => String(x.DNI).trim() === dni || String(x.dniHijo).trim() === dni);
                 if(n) {
                     let inas = [];
@@ -601,7 +628,7 @@
             calcularEdadCita();
         } catch(e) { 
             console.error(e); 
-            lanzarModal("Error al conectar datos.", "❌");
+            lanzarModal("Error general inesperado al procesar la consulta.", "❌");
         }
     }
 
@@ -677,7 +704,6 @@
         document.getElementById('edadInput').value = resultado;
     }
 
-    /* DESCARGA BLINDADA DOBLE ESCENARIO: COMPATIBLE CON RESPUESTA BINARIA Y REDIRECCIÓN DIRECTA */
     async function descargarExcel() {
         const desde = document.getElementById('repDesde').value;
         const hasta = document.getElementById('repHasta').value;
@@ -696,7 +722,6 @@
             const response = await fetch(url);
             if (!response.ok) throw new Error();
             
-            // Intentamos parsear JSON por si el script ya maneja Base64
             const textoResp = await response.text();
             try {
                 const respuestaJson = JSON.parse(textoResp);
@@ -719,14 +744,12 @@
                     return;
                 }
             } catch(e) {
-                // Si no era JSON, significa que tu script web app ejecuta una descarga tradicional por redirección directa
                 window.open(url, '_blank');
                 cerrarModal();
             }
 
         } catch (err) {
             console.error(err);
-            // Método de respaldo absoluto: Forzar apertura directa del link macro
             window.open(url, '_blank');
             cerrarModal();
         }
@@ -780,7 +803,6 @@
     document.getElementById('turnoInput').addEventListener('change', validarTodo);
     document.getElementById('consInput').addEventListener('change', validarTodo);
 
-    /* SUBMIT COMPATIBLE OPTIMIZADO PARA DESPLIEGUE EN GITHUB PAGES */
     document.getElementById('citaForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         if(document.getElementById('edadInput').value === "") {
@@ -798,7 +820,6 @@
         document.getElementById('finalNac').value = document.getElementById('nacInput').value;
         document.getElementById('finalCita').value = aLatino(document.getElementById('citaInput').value);
 
-        // Pasamos el contenido a URLSearchParams para evitar rebotes de cabeceras en producción
         const formData = new FormData(this);
         const params = new URLSearchParams();
         for (const [key, value] of formData.entries()) {
