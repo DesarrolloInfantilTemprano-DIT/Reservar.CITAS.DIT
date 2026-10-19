@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Citas CREDD | Castillo Grande</title>
+    <title>MODULO CITAS | Castillo Grande</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -27,19 +26,14 @@
             --border-playful: #e2ebf6;
         }
         
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0; padding: 0; color: var(--text-dark);
-            min-height: 100vh; width: 100vw;
-            overflow-x: hidden;
+            min-height: 100vh; width: 100vw; overflow-x: hidden;
             display: flex; justify-content: center; align-items: center;
-            position: relative;
-            background-color: #eaf4ff;
+            position: relative; background-color: #eaf4ff;
         }
 
         #bg-slideshow {
@@ -54,24 +48,15 @@
         }
 
         .container {
-            width: 96%; max-width: 1150px; 
-            margin: 20px auto;
-            background: var(--card); 
-            border-radius: 36px; 
-            padding: 25px 35px;
+            width: 96%; max-width: 1350px; margin: 20px auto;
+            background: var(--card); border-radius: 36px; padding: 25px 35px;
             box-shadow: 0 25px 60px -15px rgba(79, 70, 229, 0.15), 0 0 0 10px rgba(255, 255, 255, 0.6); 
-            border: 2px solid #ffffff;
-            display: flex; flex-direction: column; 
-            box-sizing: border-box;
-            position: relative;
+            border: 2px solid #ffffff; display: flex; flex-direction: column; 
+            box-sizing: border-box; position: relative;
         }
 
-        .container::before {
-            content: '🎈'; position: absolute; top: -25px; left: 30px; font-size: 35px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-        }
-        .container::after {
-            content: '🧸'; position: absolute; top: -20px; right: 30px; font-size: 32px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-        }
+        .container::before { content: '🎈'; position: absolute; top: -25px; left: 30px; font-size: 35px; }
+        .container::after { content: '🧸'; position: absolute; top: -20px; right: 30px; font-size: 32px; }
 
         .modal-overlay {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
@@ -87,162 +72,132 @@
         }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        .header { 
-            text-align: center; 
-            margin-bottom: 20px; 
-            display: flex; 
-            flex-direction: column;
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px; 
+        /* Estilos para el Modal Selector Estilo App (Tipo Selector de Sector) */
+        .selector-modal-overlay {
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(44, 62, 80, 0.6); z-index: 10000; align-items: center; justify-content: center;
+            backdrop-filter: blur(6px);
         }
-        .header-main-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .selector-modal-content {
+            background: white; width: 92%; max-width: 480px; border-radius: 24px; overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; max-height: 85vh;
+            animation: popUp 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 2px solid var(--primary-light);
         }
+        .selector-modal-header {
+            background: var(--primary); color: white; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .selector-modal-header h3 { margin: 0; font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .selector-modal-header .close-btn { background: none; border: none; color: white; font-size: 18px; cursor: pointer; }
+        .selector-modal-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+        .selector-search-input {
+            width: 100%; padding: 12px 16px; border-radius: 14px; border: 2px solid #cbd5e1;
+            font-size: 13px; font-weight: 600; outline: none; background: #f8fafc;
+        }
+        .selector-search-input:focus { border-color: var(--primary); background: white; }
+        .selector-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto; }
+        .selector-item-row {
+            padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+            font-size: 13px; font-weight: 700; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.2s;
+        }
+        .selector-item-row:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+        .selector-modal-footer { padding: 12px 16px; background: #f1f5f9; display: flex; justify-content: flex-end; border-top: 1px solid #e2e8f0; }
+        .selector-btn-cancelar { background: #cbd5e1; border: none; color: #334155; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 12px; }
+
+        .header { text-align: center; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .header-main-row { display: flex; align-items: center; gap: 15px; }
         .header .avatar-icon {
-            width: 55px; height: 55px; 
-            background: linear-gradient(135deg, #ff6b81, #ffb830); 
+            width: 55px; height: 55px; background: linear-gradient(135deg, #ff6b81, #ffb830); 
             border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;
-            box-shadow: 0 6px 14px rgba(255, 107, 129, 0.3); margin: 0;
-            transform: rotate(-5deg);
-            animation: float 4s ease-in-out infinite alternate;
+            box-shadow: 0 6px 14px rgba(255, 107, 129, 0.3); transform: rotate(-5deg);
         }
-        @keyframes float {
-            0% { transform: translateY(0) rotate(-5deg); }
-            100% { transform: translateY(-4px) rotate(5deg); }
-        }
-        .header h2 { margin: 0; color: #1e1b4b; font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
+        .header h2 { margin: 0; color: #1e1b4b; font-weight: 800; font-size: 26px; }
         .header p { 
             font-size: 12px; color: #ffffff; font-weight: 800; margin: 2px 0 0 0; 
             background: linear-gradient(90deg, var(--primary), #6366f1); 
-            padding: 4px 16px; border-radius: 20px; 
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);
-            display: inline-block;
-            letter-spacing: 0.5px;
+            padding: 4px 16px; border-radius: 20px; display: inline-block;
         }
 
-        .main-layout {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 20px;
-        }
+        .main-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 20px; }
 
         .indicador-modo-edicion {
             display: none; background: #fffbeb; border: 2px solid #fef3c7; color: #b45309;
             padding: 12px 18px; border-radius: 18px; font-size: 12px; font-weight: 700; margin-bottom: 15px;
             justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.08);
-            animation: slideIn 0.3s ease;
         }
 
         .alert-box {
             padding: 14px 18px; border-radius: 20px; font-size: 13px; font-weight: 600;
             margin-bottom: 15px; display: none; flex-direction: column; gap: 8px;
-            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.08); animation: slideIn 0.3s ease;
+            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.08);
         }
         .alert-danger { background: #fff5f5; color: #c53030; border: 2px solid #fed7d7; }
         .anemia-info-card {
             background: var(--anemia-bg); border: 1px solid var(--anemia-border);
-            padding: 12px; border-radius: 14px; margin-top: 6px; font-size: 12px; color: #9f1239;
-            line-height: 1.5;
+            padding: 12px; border-radius: 14px; margin-top: 6px; font-size: 12px; color: #9f1239; line-height: 1.5;
         }
 
         .form-section { 
-            background: var(--kids-soft-bg); 
-            padding: 20px 24px; 
-            border-radius: 26px; 
-            border: 2px dashed var(--border-playful);
-            display: flex; flex-direction: column; justify-content: flex-start;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+            background: var(--kids-soft-bg); padding: 20px 24px; border-radius: 26px; 
+            border: 2px dashed var(--border-playful); display: flex; flex-direction: column; justify-content: flex-start;
         }
-        .form-section:nth-of-type(2) { 
-            background: #f0fdf4; 
-            border-color: #bbf7d0; 
-        }
+        .form-section:nth-of-type(2) { background: #f0fdf4; border-color: #bbf7d0; }
         .section-title { 
-            font-size: 12px; font-weight: 800; color: #4a5568; 
-            text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;
-            letter-spacing: 0.5px;
+            font-size: 12px; font-weight: 800; color: #4a5568; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;
         }
 
         .input-group { margin-bottom: 14px; }
         label { display: block; font-size: 12px; font-weight: 700; color: #4a5568; margin-bottom: 6px; }
         input, select {
-            width: 100%; padding: 12px 16px; border-radius: 16px;
-            border: 2px solid #cbd5e1; font-size: 14px; font-weight: 600; color: #1e293b;
-            background-color: white; transition: all 0.25s ease; box-sizing: border-box; outline: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            width: 100%; padding: 12px 16px; border-radius: 16px; border: 2px solid #cbd5e1;
+            font-size: 14px; font-weight: 600; color: #1e293b; background-color: white; outline: none; transition: all 0.25s ease;
         }
-        input:focus, select:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
-            background-color: #ffffff;
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15); }
+
+        /* Estilo personalizado tipo botón desplegable para consultorios / profesionales */
+        .selector-trigger-btn {
+            width: 100%; padding: 12px 16px; border-radius: 16px; border: 2px solid #cbd5e1;
+            font-size: 14px; font-weight: 600; color: #1e293b; background-color: white; outline: none;
+            display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left;
         }
-        input:required { border-left: 5px solid var(--accent-kids); }
+        .selector-trigger-btn:hover { border-color: var(--primary); background: #f8fafc; }
 
         .btn-lupa {
             background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; border: none; border-radius: 16px; 
-            padding: 0 20px; cursor: pointer; transition: all 0.2s; font-size: 15px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+            padding: 0 20px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center;
         }
-        .btn-lupa:hover { transform: scale(1.05); box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3); }
 
-        .historial-box {
-            background: #f8fafc; border-radius: 22px; padding: 15px 20px;
-            margin-bottom: 15px; display: none; border: 2px solid #e2e8f0;
-        }
-        .historial-item { 
-            font-size: 12px; font-weight: 700; display: flex; justify-content: space-between; 
-            align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; 
-        }
-        .historial-item:last-child { border-bottom: none; }
-        .historial-item b { color: var(--primary); background: white; padding: 4px 10px; border-radius: 10px; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .btn-edit-historial { 
-            background: #ffffff; border: 1px solid #cbd5e1; color: var(--primary); 
-            cursor: pointer; font-size: 13px; padding: 5px 10px; border-radius: 10px; 
-            margin-left: 8px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-        }
-        .btn-edit-historial:hover { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .submit-container {
-            margin-top: 10px;
-            width: 100%;
-        }
+        .submit-container { margin-top: 10px; width: 100%; }
         .btn-submit {
-            width: 100%; padding: 16px; 
-            background: linear-gradient(135deg, #4f46e5, #6366f1); color: white;
-            border: none; border-radius: 20px; font-weight: 800; font-size: 16px;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1); 
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25); 
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            width: 100%; padding: 16px; background: linear-gradient(135deg, #4f46e5, #6366f1); color: white;
+            border: none; border-radius: 20px; font-weight: 800; font-size: 16px; cursor: pointer; text-transform: uppercase;
         }
-        .btn-submit:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 12px 24px rgba(79, 70, 229, 0.35); 
-        }
-        .btn-submit:active { transform: translateY(0); }
-        .btn-submit:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; }
 
         .badge-adicional { display: none; background: #fff7ed; border: 2px solid #fed7aa; padding: 12px; border-radius: 16px; margin-top: 10px; }
         .contador-vivos { background: #e0f2fe; color: #0369a1; padding: 12px 16px; border-radius: 16px; font-size: 12px; font-weight: 700; margin-bottom: 14px; display: none; border: 1px solid #bae6fd; align-items: center; gap: 10px; }
 
-        .toggle-report { text-align: center; margin-top: 15px; font-size: 12px; font-weight: 800; color: var(--primary); cursor: pointer; display: block; padding: 8px; border-radius: 12px; transition: 0.2s; }
-        .toggle-report:hover { background: var(--primary-light); }
-        .report-section { border-top: 4px solid var(--secondary); background: #ffffff; margin-top: 8px; display: none; padding: 20px; border-radius: 22px; }
-        .btn-excel { width: 100%; padding: 14px; background: var(--secondary); color: white; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
-        .btn-excel:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3); }
-        
-        .admin-trigger { text-align: center; margin-top: 12px; font-size: 11px; color: #94a3b8; cursor: pointer; text-decoration: underline; font-weight: 600; }
-        .admin-trigger:hover { color: #64748b; }
+        .toggle-monitor { text-align: center; margin-top: 15px; font-size: 12px; font-weight: 800; color: var(--primary); cursor: pointer; display: block; padding: 8px; }
 
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        /* Estilos para el Monitoreo de Asistencia */
+        .monitor-section { border-top: 4px solid var(--primary); background: #ffffff; margin-top: 10px; display: none; padding: 20px; border-radius: 22px; }
+        .monitor-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px; align-items: end; }
+        .btn-buscar-monitor { background: linear-gradient(135deg, var(--primary), #6366f1); color: white; border: none; border-radius: 16px; padding: 12px 18px; font-weight: 800; cursor: pointer; font-size: 13px; height: 46px; }
+        .monitor-table-container { max-height: 400px; overflow-y: auto; overflow-x: auto; margin-top: 12px; border: 1px solid #e2e8f0; border-radius: 14px; }
+        .monitor-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; min-width: 1300px; }
+        .monitor-table th { background: #f8fafc; padding: 12px 8px; border-bottom: 2px solid #e2e8f0; color: #475569; position: sticky; top: 0; z-index: 2; white-space: nowrap; }
+        .monitor-table td { padding: 8px; border-bottom: 1px solid #f1f5f9; color: #1e293b; vertical-align: middle; }
+        .select-asistencia { padding: 4px 8px; border-radius: 8px; border: 2px solid #cbd5e1; font-size: 11px; font-weight: 700; background: #fff; cursor: pointer; width: 100%; }
+        
+        .btn-acciones-monitor { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-actualizar-asistencia { flex: 2; padding: 14px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 13px; text-transform: uppercase; }
+        .btn-excel-monitor { flex: 1; padding: 14px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 13px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-reprogramar-fila { background: #f59e0b; color: white; border: none; padding: 5px 10px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 10px; white-space: nowrap; }
 
         @media (max-width: 768px) {
-            body { height: auto; overflow-y: auto; }
-            .container { height: auto; min-height: 100vh; border-radius: 0; padding: 20px 15px; width: 100%; margin: 0; box-shadow: none; border: none; }
-            .container::before, .container::after { display: none; }
+            .container { border-radius: 0; padding: 20px 15px; width: 100%; margin: 0; box-shadow: none; border: none; }
             .main-layout { grid-template-columns: 1fr; gap: 15px; }
-            .header h2 { font-size: 22px; }
+            .monitor-filters { grid-template-columns: 1fr 1fr; }
+            .btn-acciones-monitor { flex-direction: column; }
         }
     </style>
 </head>
@@ -255,53 +210,61 @@
     <div class="modal-box">
         <div id="modalIcon" style="font-size: 48px; margin-bottom: 15px;"></div>
         <p id="modalText" style="font-weight: 700; color: #1e293b; margin-bottom: 25px; font-size: 15px; line-height: 1.5;"></p>
-        <button onclick="cerrarModal()" style="background: linear-gradient(135deg, var(--primary), #6366f1); color: white; border: none; padding: 14px 30px; border-radius: 16px; font-weight: 800; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);">Aceptar</button>
+        <button onclick="cerrarModal()" style="background: linear-gradient(135deg, var(--primary), #6366f1); color: white; border: none; padding: 14px 30px; border-radius: 16px; font-weight: 800; cursor: pointer; width: 100%;">Aceptar</button>
+    </div>
+</div>
+
+<!-- Modal Selector Genérico Estilo App -->
+<div id="appSelectorModal" class="selector-modal-overlay">
+    <div class="selector-modal-content">
+        <div class="selector-modal-header">
+            <h3 id="appSelectorTitle"><i class="fa-solid fa-list"></i> Seleccionar Opción</h3>
+            <button class="close-btn" onclick="cerrarAppSelector()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="selector-modal-body">
+            <input type="text" id="appSelectorSearch" class="selector-search-input" placeholder="Escriba para buscar..." oninput="filtrarOpcionesSelector()">
+            <div id="appSelectorList" class="selector-list-container">
+                <!-- Opciones dinámicas -->
+            </div>
+        </div>
+        <div class="selector-modal-footer">
+            <button type="button" class="selector-btn-cancelar" onclick="cerrarAppSelector()">CANCELAR</button>
+        </div>
     </div>
 </div>
 
 <div class="container">
     <div class="header">
         <div class="header-main-row">
-            <div class="avatar-icon">
-                <i class="fa-solid fa-child-reaching"></i>
-            </div>
-            <div>
-                <h2>Sistema de Citas</h2>
-            </div>
+            <div class="avatar-icon"><i class="fa-solid fa-child-reaching"></i></div>
+            <div><h2>Sistema de Citas</h2></div>
         </div>
         <p>C.S. CASTILLO GRANDE</p>
     </div>
 
     <div id="modoEdicionBox" class="indicador-modo-edicion">
-        <span><i class="fa-solid fa-pen-to-square fa-bounce"></i> MODIFICANDO CITA SELECCIONADA</span>
+        <span><i class="fa-solid fa-pen-to-square"></i> MODIFICANDO CITA SELECCIONADA</span>
         <button type="button" onclick="cancelarEdicion()" style="background:var(--warning); border:none; color:white; padding:6px 12px; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer;">CANCELAR</button>
     </div>
 
     <div id="alertInasistencia" class="alert-box alert-danger">
         <div style="display:flex; align-items:center; gap:10px;">
-            <i class="fa-solid fa-circle-exclamation fa-beat" style="font-size: 18px;"></i>
+            <i class="fa-solid fa-circle-exclamation" style="font-size: 18px;"></i>
             <div id="inaMsg" style="width: 100%; line-height: 1.4;"></div>
         </div>
         <div id="anemiaDetails" style="display:none;" class="anemia-info-card"></div>
-    </div>
-
-    <div id="boxHistorial" class="historial-box">
-        <span class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Historial (Toca 📝 para Modificar)</span>
-        <div id="listaHistorial"></div>
     </div>
 
     <form id="citaForm">
         <div class="main-layout">
             
             <div class="form-section">
-                <span class="section-title"><i class="fa-solid fa-id-card" style="color: var(--accent-kids)"></i> Información del Niño</span>
+                <span class="section-title"><i class="fa-solid fa-id-card" style="color: var(--accent-kids)"></i> Información del Usuario</span>
                 <div class="input-group">
                     <label>DNI *</label>
                     <div style="display: flex; gap: 8px;">
                         <input type="number" name="DNI" id="dniInput" required oninput="if(this.value.length > 8) this.value = this.value.slice(0, 8);" placeholder="Escriba el DNI">
-                        <button type="button" class="btn-lupa" onclick="buscarDNI()">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
+                        <button type="button" class="btn-lupa" onclick="buscarDNI()"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>
                 </div>
                 <div class="input-group">
@@ -325,12 +288,18 @@
                     </div>
                     <div class="input-group">
                         <label>CELULAR *</label>
-                        <input type="text" name="CELULAR" id="telInput" required placeholder="Número telefónico">
+                        <input type="tel" name="CELULAR" id="telInput" required maxlength="9" pattern="[0-9]{9}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 9)" placeholder="Ej. 956003980">
                     </div>
                 </div>
-                <div class="input-group">
-                    <label>SECTOR / DIRECCIÓN *</label>
-                    <input type="text" name="SECTOR" id="sectorInput" required readonly style="background:#f1f5f9; color: #475569;" placeholder="Sector de vivienda">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <div class="input-group">
+                        <label>CELULAR 2 (OPCIONAL)</label>
+                        <input type="tel" name="CELULAR_2" id="tel2Input" maxlength="9" pattern="[0-9]{9}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 9)" placeholder="Número secundario">
+                    </div>
+                    <div class="input-group">
+                        <label>SECTOR*</label>
+                        <input type="text" name="SECTOR" id="sectorInput" required readonly style="background:#f1f5f9; color: #475569;" placeholder="Sector de vivienda">
+                    </div>
                 </div>
             </div>
 
@@ -344,10 +313,11 @@
 
                 <div class="input-group">
                     <label>CONSULTORIO *</label>
-                    <select name="CONSULTORIO" id="consInput" required>
-                        <option value="CRED">🩺 CRED (Crecimiento y Desarrollo)</option>
-                        <option value="VACUNATORIO">🩺 VACUNATORIO-ESNI</option>
-                    </select>
+                    <input type="hidden" name="CONSULTORIO" id="consInput" required>
+                    <button type="button" class="selector-trigger-btn" id="btnConsTrigger" onclick="abrirSelectorConsultorio()">
+                        <span id="txtConsSeleccionado">Seleccione consultorio</span>
+                        <i class="fa-solid fa-chevron-down" style="color: var(--primary);"></i>
+                    </button>
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                     <div class="input-group">
@@ -357,16 +327,16 @@
                     <div class="input-group">
                         <label>TURNO *</label>
                         <select name="TURNO" id="turnoInput" required>
-                            <option value="MAÑANA">MAÑANA (18 Cupos)</option>
-                            <option value="TARDE">TARDE (6 Cupos)</option>
+                            <option value="MAÑANA">MAÑANA</option>
+                            <option value="TARDE">TARDE</option>
                         </select>
                     </div>
                 </div>
 
-                <div id="boxAdicional" class="badge-adicional">
+                <div id="boxAdicional" class="badge-adicional" style="display: none !important;">
                     <label style="display:flex; align-items:center; gap:10px; color:#9a3412; font-size:13px; cursor:pointer;">
                         <input type="checkbox" name="ES_ADICIONAL" id="checkAdicional" value="true" style="width:auto; margin:0;">
-                        <span><b>CUPOS AGOTADOS.</b> Acepto registrar como adicional.</span>
+                        <span><b>CUPOS AGOTADOS.</b> Registrar como adicional.</span>
                     </label>
                 </div>
             </div>
@@ -375,70 +345,96 @@
 
         <input type="hidden" name="FECHA_NACIMIENTO" id="finalNac">
         <input type="hidden" name="FECHA_CITA" id="finalCita">
-        <input type="hidden" name="AVISO_ACTUALIZACION" id="finalAviso">
+        <input type="hidden" name="GPS" id="finalGps">
+        <input type="hidden" name="CONDICION_ASISTENCIA" id="finalCondicion" value="Asistió">
         
         <input type="hidden" name="ES_EDICION" id="esEdicion" value="false">
         <input type="hidden" name="FECHA_ORIGINAL" id="fechaOriginal" value="">
         
         <div class="submit-container">
-            <button type="submit" id="btnEnviar" class="btn-submit">CONFIRMAR REGISTRO</button>
+            <button type="submit" id="btnEnviar" class="btn-submit">GUARDAR CITA</button>
         </div>
     </form>
 
-    <span class="toggle-report" onclick="toggleReporte()">
-        <i class="fa-solid fa-file-export"></i> MOSTRAR OPCIONES DE EXPORTACIÓN
-    </span>
+    <!-- Disparador para Mostrar/Ocultar Módulo de Monitoreo -->
+    <span class="toggle-monitor" onclick="toggleMonitoreo()"><i class="fa-solid fa-clipboard-user"></i> MOSTRAR CITADOS</span>
 
-    <div id="seccionReporte" class="form-section report-section">
-        <span class="section-title"><i class="fa-solid fa-file-excel"></i> Descargar Lista de Citados</span>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom: 10px;">
+    <!-- Módulo de Monitoreo de Asistencia -->
+    <div id="seccionMonitoreo" class="form-section monitor-section">
+        <span class="section-title"><i class="fa-solid fa-clipboard-check"></i> MÓDULO DE CITADOS</span>
+        
+        <div class="monitor-filters">
             <div>
                 <label>Desde:</label>
-                <input type="date" id="repDesde">
+                <input type="date" id="monDesde">
             </div>
             <div>
                 <label>Hasta:</label>
-                <input type="date" id="repHasta">
+                <input type="date" id="monHasta">
+            </div>
+            <div>
+                <label>Consultorio:</label>
+                <input type="hidden" id="monConsultorio" value="TODOS">
+                <button type="button" class="selector-trigger-btn" id="btnMonConsTrigger" onclick="abrirSelectorMonConsultorio()" style="height: 46px; background: white;">
+                    <span id="txtMonConsSeleccionado">TODOS</span>
+                    <i class="fa-solid fa-chevron-down" style="color: var(--primary);"></i>
+                </button>
+            </div>
+            <div>
+                <label>Turno:</label>
+                <select id="monTurno">
+                    <option value="TODOS">TODOS</option>
+                    <option value="MAÑANA">MAÑANA</option>
+                    <option value="TARDE">TARDE</option>
+                </select>
+            </div>
+            <div style="grid-column: span 2;">
+                <label>Buscar (DNI / Nombre):</label>
+                <input type="text" id="monBuscarTexto" placeholder="Escriba DNI o Apellidos" oninput="filtrarTablaMonitorLocal()">
+            </div>
+            <div>
+                <button type="button" class="btn-buscar-monitor" onclick="cargarMonitoreoAsistencia()"><i class="fa-solid fa-magnifying-glass"></i> BUSCAR CITAS</button>
             </div>
         </div>
-        <div class="input-group">
-            <label>Filtrar Consultorio:</label>
-            <select id="repConsultorio">
-                <option value="TODOS">TODOS LOS CONSULTORIOS</option>
-                <option value="CRED">CRED</option>
-                <option value="NUTRICIÓN">NUTRICIÓN</option>
-                <option value="ODONTOLOGÍA">ODONTOLOGÍA</option>
-                <option value="PSICOLOGÍA">PSICOLOGÍA</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label>Filtrar Turno:</label>
-            <select id="repTurno">
-                <option value="TODOS">TODOS LOS TURNOS</option>
-                <option value="MAÑANA">MAÑANA</option>
-                <option value="TARDE">TARDE</option>
-            </select>
-        </div>
-        <button type="button" class="btn-excel" onclick="descargarExcel()">
-            <i class="fa-solid fa-download"></i> DESCARGAR EXCEL REAL
-        </button>
-    </div>
 
-    <div class="admin-trigger" onclick="abrirModuloAdmin()">⚙️ Configuración Especialidades</div>
+        <div class="monitor-table-container">
+            <table class="monitor-table">
+                <thead>
+                    <tr>
+                        <th>Fecha Cita</th>
+                        <th>Turno</th>
+                        <th>Consultorio</th>
+                        <th>Paciente / DNI</th>
+                        <th>FECHA_NACIMIENTO</th>
+                        <th>Edad Cita</th>
+                        <th>TELFONO-1</th>
+                        <th>TELFONO-2</th>
+                        <th>HCL</th>
+                        <th>SECTOR</th>
+                        <th>GPS</th>
+                        <th>RESPONSABLE ATENCIÓN</th>
+                        <th>Condición de Asistencia</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="monitorTablaBody">
+                    <tr><td colspan="14" style="text-align:center; color:#94a3b8;">Establezca los filtros y presione "BUSCAR".</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="btn-acciones-monitor">
+            <button type="button" class="btn-actualizar-asistencia" onclick="guardarCambiosAsistencia()"><i class="fa-solid fa-floppy-disk"></i> GUARDAR ASISTENCIA</button>
+            <button type="button" class="btn-excel-monitor" onclick="descargarExcelMonitor()"><i class="fa-solid fa-file-excel"></i> EXPORTAR A EXCEL</button>
+        </div>
+    </div>
 </div>
 
 <script>
     const imagenesKids = [
         "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=1200&auto=format&fit=crop", 
         "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop", 
-        "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=1200&auto=format&fit=crop", 
-        "https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?q=80&w=1200&auto=format&fit=crop", 
-        "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?q=80&w=1200&auto=format&fit=crop", 
-        "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?q=80&w=1200&auto=format&fit=crop", 
-        "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1200&auto=format&fit=crop", 
-        "https://images.unsplash.com/photo-1560250056-07ba370dedc2?q=80&w=1200&auto=format&fit=crop", 
-        "https://images.unsplash.com/photo-1531123414780-f74242c2b052?q=80&w=1200&auto=format&fit=crop", 
-        "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop"
+        "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=1200&auto=format&fit=crop"
     ];
 
     let currentImgIdx = 0;
@@ -452,13 +448,119 @@
     rotarFondo();
     setInterval(rotarFondo, 20000);
 
-    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbzIcCvRp2RzrpiwVQj0I2px-uS5gGNgXlUOVhJv9Nkbzb6GqYOM0HO3a9FhQBnMIwRepA/exec'; 
-    const SCRIPT_MAPA = 'https://script.google.com/macros/s/AKfycbzFJPWYyiVo1d5lJnG6LtRRkCp6pOyvfvMbApsa1GWTr02m4b2NLLvV7XyKOIyPVVcCmg/exec';
+    const SCRIPT_CITAS = 'https://script.google.com/macros/s/AKfycbwLOYe1VYgfQNRR9O0xeHXSAyUYnaXYbbcKBsDBGkoOYwfrD9X_lJfZzA7dvK_1LeSk/exec'; 
     const SCRIPT_CENSO = 'https://script.google.com/macros/s/AKfycbzV4-amqK-0j0KkL5D1ukGwVOMdwdzVdlUd7hnaQT3RlBDM-61tTo6oAaiXn7kYtD4xZA/exec';
+    const SCRIPT_ADMIN = 'https://script.google.com/macros/s/AKfycbw1vFCkWi9mEhshhOQYBkf1D4OQbQWA4EzXEolOEaLCtp-12PqK8YAMQb5uKDPVIFH1/exec';
 
     let globalAnemia = "NO";
-    let globalInasistencias = "NINGUNA";
-    let ultimoDniBuscado = "";
+    let datasetMonitorGlobal = [];
+    let listaProfesionalesGlobal = [];
+    let listaConsultoriosGlobal = [];
+
+    // Variables para el Modal Selector Global
+    let selectorCallbackActual = null;
+    let opcionesSelectorActual = [];
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const hoyIso = new Date().toISOString().split('T')[0];
+        document.getElementById('monDesde').value = hoyIso;
+        document.getElementById('monHasta').value = hoyIso;
+        cargarConsultoriosDinamicos();
+        cargarProfesionalesAdmin();
+    });
+
+    async function cargarConsultoriosDinamicos() {
+        try {
+            const res = await fetch(`${SCRIPT_ADMIN}?getConsultorios=true`);
+            const data = await res.json();
+            if (data && data.consultorios) {
+                listaConsultoriosGlobal = data.consultorios;
+                const selCons = document.getElementById('consInput');
+                if (selCons && !selCons.value && listaConsultoriosGlobal.length > 0) {
+                    selCons.value = listaConsultoriosGlobal[0];
+                    document.getElementById('txtConsSeleccionado').innerText = listaConsultoriosGlobal[0];
+                }
+            }
+        } catch (e) {
+            console.error("Error al cargar consultorios desde ADMIN", e);
+        }
+    }
+
+    async function cargarProfesionalesAdmin() {
+        try {
+            const res = await fetch(`${SCRIPT_ADMIN}?getProfesionales=true`);
+            const data = await res.json();
+            if (data && data.profesionales) {
+                listaProfesionalesGlobal = data.profesionales;
+            }
+        } catch (e) {
+            console.error("Error al cargar profesionales desde ADMIN", e);
+        }
+    }
+
+    // Funciones para el Modal Selector Estilo App
+    function abrirAppSelector(titulo, opciones, callback) {
+        document.getElementById('appSelectorTitle').innerHTML = `<i class="fa-solid fa-list"></i> ${titulo}`;
+        opcionesSelectorActual = opciones;
+        selectorCallbackActual = callback;
+        document.getElementById('appSelectorSearch').value = '';
+        renderizarOpcionesSelector(opciones);
+        document.getElementById('appSelectorModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('appSelectorSearch').focus(), 150);
+    }
+
+    function renderizarOpcionesSelector(lista) {
+        const contenedor = document.getElementById('appSelectorList');
+        contenedor.innerHTML = '';
+        if (lista.length === 0) {
+            contenedor.innerHTML = `<div style="padding:15px; text-align:center; color:#94a3b8; font-weight:600; font-size:12px;">No se encontraron resultados</div>`;
+            return;
+        }
+        lista.forEach(op => {
+            const row = document.createElement('div');
+            row.className = 'selector-item-row';
+            row.innerHTML = `<span>${op}</span><i class="fa-solid fa-chevron-right" style="font-size:11px; color:#94a3b8;"></i>`;
+            row.onclick = () => {
+                if (selectorCallbackActual) selectorCallbackActual(op);
+                cerrarAppSelector();
+            };
+            contenedor.appendChild(row);
+        });
+    }
+
+    function filtrarOpcionesSelector() {
+        const txt = document.getElementById('appSelectorSearch').value.toLowerCase().trim();
+        const filtradas = opcionesSelectorActual.filter(op => op.toLowerCase().includes(txt));
+        renderizarOpcionesSelector(filtradas);
+    }
+
+    function cerrarAppSelector() {
+        document.getElementById('appSelectorModal').style.display = 'none';
+        selectorCallbackActual = null;
+    }
+
+    function abrirSelectorConsultorio() {
+        abrirAppSelector("Seleccionar Consultorio", listaConsultoriosGlobal, (val) => {
+            document.getElementById('consInput').value = val;
+            document.getElementById('txtConsSeleccionado').innerText = val;
+            validarTodo();
+        });
+    }
+
+    function abrirSelectorMonConsultorio() {
+        const opciones = ["TODOS", ...listaConsultoriosGlobal];
+        abrirAppSelector("Consultorio de Monitoreo", opciones, (val) => {
+            document.getElementById('monConsultorio').value = val;
+            document.getElementById('txtMonConsSeleccionado').innerText = (val === "TODOS") ? "TODOS LOS CONSULTORIOS" : val;
+        });
+    }
+
+    function abrirSelectorProfesionalFila(btnElement, dni, fecha, consultorio) {
+        abrirAppSelector("Seleccionar Responsable de Atención", listaProfesionalesGlobal, (val) => {
+            btnElement.querySelector('.txt-prof-sel').innerText = val;
+            btnElement.dataset.valorSeleccionado = val;
+        });
+    }
 
     function lanzarModal(texto, icono='ℹ️') {
         document.getElementById('modalText').innerText = texto;
@@ -467,15 +569,15 @@
     }
     function cerrarModal() { document.getElementById('modalCustom').style.display = 'none'; }
 
-    function toggleReporte() {
-        const r = document.getElementById('seccionReporte');
-        const t = document.querySelector('.toggle-report');
-        if (r.style.display === 'block') {
-            r.style.display = 'none';
-            t.innerHTML = '<i class="fa-solid fa-file-export"></i> MOSTRAR OPCIONES DE EXPORTACIÓN';
+    function toggleMonitoreo() {
+        const m = document.getElementById('seccionMonitoreo');
+        const t = document.querySelector('.toggle-monitor');
+        if (m.style.display === 'block') {
+            m.style.display = 'none';
+            t.innerHTML = '<i class="fa-solid fa-clipboard-user"></i> MOSTRAR CITADOS';
         } else {
-            r.style.display = 'block';
-            t.innerHTML = '<i class="fa-solid fa-eye-slash"></i> OCULTAR OPCIONES DE EXPORTACIÓN';
+            m.style.display = 'block';
+            t.innerHTML = '<i class="fa-solid fa-eye-slash"></i> OCULTAR CITADOS';
         }
     }
 
@@ -484,6 +586,8 @@
             el.readOnly = true; el.style.background = "#f1f5f9"; el.value = "";
         });
         document.getElementById('telInput').value = ""; 
+        document.getElementById('tel2Input').value = ""; 
+        document.getElementById('finalGps').value = "";
         document.getElementById('btnEnviar').disabled = true;
         cancelarEdicion();
     }
@@ -501,87 +605,39 @@
             return;
         }
 
-        ultimoDniBuscado = dni;
-        limpiarAlerta();
         cancelarEdicion();
         
         try {
-            // 1. Consulta aislada al Censo para evitar falsas caídas de red
             let respCeno;
             try {
                 const resCensoRaw = await fetch(`${SCRIPT_CENSO}?action=buscar&dni=${dni}`);
                 respCeno = await resCensoRaw.json();
             } catch (errCenso) {
-                console.error("Fallo leyendo Script de Censo:", errCenso);
-                lanzarModal("Error de comunicación con el servidor del Censo. Verifica permisos.", "❌");
+                lanzarModal("Error de comunicación con el servidor del Censo.", "❌");
                 return;
             }
 
-            // 2. Validación precisa del estado de error estructurado del Apps Script
             if (!respCeno || respCeno.status === "error") {
                 lanzarModal("Usuario Nuevo. Registre los datos del niño en el Módulo de Censo.", "🚫");
                 bloquearFormulario();
                 return; 
             }
 
-            // 3. Rellenar campos del formulario
             document.getElementById('nombreInput').value = respCeno.nombreB || "";
             document.getElementById('nacInput').value    = respCeno.fn || "";
             document.getElementById('hcInput').value     = respCeno.hclinica || "";
-            document.getElementById('telInput').value    = respCeno.telefono || "";
+            document.getElementById('telInput').value    = respCeno.telefono || respCeno['TELFONO-1'] || "";
+            document.getElementById('tel2Input').value   = respCeno['TELEFONO-2'] || respCeno['TELFONO-2'] || "";
             document.getElementById('sectorInput').value = respCeno.sector || "";
+            document.getElementById('finalGps').value    = respCeno.georeferencia || respCeno.gps || respCeno.GPS || "";
             document.getElementById('btnEnviar').disabled = false;
 
-            // 4. Consulta aislada del historial de citas
-            let rH = null;
-            try {
-                const resCitasRaw = await fetch(`${SCRIPT_CITAS}?dni=${dni}`);
-                rH = await resCitasRaw.json();
-            } catch (errCitas) {
-                console.warn("No se pudo obtener el historial, se continúa:", errCitas);
-            }
-
-            if(rH && rH.encontrado && rH.historial) {
-                const list = document.getElementById('listaHistorial');
-                list.innerHTML = '';
-                
-                rH.historial.reverse().forEach(c => {
-                    let fLimpia = c.fecha;
-                    if(fLimpia.includes("-")) {
-                         const partes = fLimpia.split("T")[0].split("-");
-                         fLimpia = `${partes[2]}/${partes[1]}/${partes[0]}`;
-                    }
-                    const colorBadge = c.consultorio === 'CRED' ? 'var(--primary)' : 'var(--warning)';
-                    list.innerHTML += `
-                    <div class="historial-item">
-                        <span>${fLimpia} - ${c.turno}</span> 
-                        <div>
-                            <b style="background:${colorBadge}20; color:${colorBadge}">${c.consultorio}</b>
-                            <button type="button" class="btn-edit-historial" onclick="cargarCitaParaEdicion('${fLimpia}', '${c.turno}', '${c.consultorio}')" title="Editar cita">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                        </div>
-                    </div>`;
-                });
-                document.getElementById('boxHistorial').style.display = 'block';
-            }
-
-            // 5. Consultas asíncronas secundarias de mapas y tratamientos de anemia
-            let respMapa = [];
             let respAnemicosCitas = null;
             try {
-                const [rMapa, rAnemia] = await Promise.all([
-                    fetch(SCRIPT_MAPA).then(r => r.json()).catch(() => []),
-                    fetch(`${SCRIPT_CITAS}?action=buscarAnemico&dni=${dni}`).then(r => r.json()).catch(() => null)
-                ]);
-                respMapa = rMapa;
-                respAnemicosCitas = rAnemia;
-            } catch(e) {
-                console.warn("Fallo menor en módulos secundarios:", e);
-            }
+                respAnemicosCitas = await fetch(`${SCRIPT_CITAS}?action=buscarAnemico&dni=${dni}`).then(r => r.json());
+            } catch(e) {}
 
             let avisos = [];
-
             if(respAnemicosCitas && respAnemicosCitas.esAnemico) {
                 globalAnemia = "SI";
                 avisos.push("🔴 <b>PACIENTE EN TRATAMIENTO DE ANEMIA</b>");
@@ -599,36 +655,16 @@
                 }
             }
 
-            if(respMapa && respMapa.length > 0) {
-                const n = respMapa.find(x => String(x.DNI).trim() === dni || String(x.dniHijo).trim() === dni);
-                if(n) {
-                    let inas = [];
-                    if(n.citaFaltante) inas.push("Faltó al Tratamiento de Anemia del: " + n.citaFaltante);
-                    if(n.citaCred) inas.push("CRED desde: " + n.citaCred);
-                    if(n.citaVacuna) inas.push("Vacunas Incompletas: " + n.citaVacuna);
-                    
-                    if(inas.length > 0) {
-                        globalInasistencias = inas.join(" | ");
-                        avisos.push("⚠️ <b>PENDIENTES:</b> " + globalInasistencias);
-                    }
-                }
-
-                if(!n && rH) {
-                    const totalAvisos = (rH.vecesAdvertido || 0) + 1;
-                    avisos.push(`📍 Falta actualizar georeferencia. (Aviso: ${totalAvisos})`);
-                    document.getElementById('finalAviso').value = `ACTUALIZAR DATOS (${totalAvisos}° VEZ)`;
-                }
-            }
-
             if(avisos.length > 0) {
                 document.getElementById('alertInasistencia').style.display = 'flex';
-                document.getElementById('inaMsg').innerHTML = avisos.join("<hr style='border:0; border-top:1px solid #fecaca; margin:5px 0;'>");
+                document.getElementById('inaMsg').innerHTML = avisos.join("<br>");
             }
 
             calcularEdadCita();
+            validarTodo(); // Validar disponibilidad y duplicados al buscar DNI
         } catch(e) { 
             console.error(e); 
-            lanzarModal("Error general inesperado al procesar la consulta.", "❌");
+            lanzarModal("Error general al procesar la consulta.", "❌");
         }
     }
 
@@ -641,13 +677,8 @@
             document.getElementById('citaInput').value = `${partes[2]}-${partes[1].padStart(2,'0')}-${partes[0].padStart(2,'0')}`;
         }
         
-        const selectCons = document.getElementById('consInput');
-        let existeOpt = Array.from(selectCons.options).some(opt => opt.value === consultorio);
-        if (!existeOpt) {
-            let o = document.createElement("option"); o.value = consultorio; o.text = "🏥 " + consultorio; selectCons.add(o);
-        }
-        
-        selectCons.value = consultorio;
+        document.getElementById('consInput').value = consultorio;
+        document.getElementById('txtConsSeleccionado').innerText = consultorio;
         document.getElementById('turnoInput').value = turno;
         document.getElementById('modoEdicionBox').style.display = 'flex';
         
@@ -659,13 +690,25 @@
         validarTodo();
     }
 
+    function prepararEdicionDesdeMonitor(dni, fechaCita, turno, consultorio) {
+        document.getElementById('dniInput').value = dni;
+        toggleMonitoreo(); // Ocultar monitor para mostrar el formulario arriba
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        buscarDNI().then(() => {
+            setTimeout(() => {
+                cargarCitaParaEdicion(fechaCita, turno, consultorio);
+            }, 600);
+        });
+    }
+
     function cancelarEdicion() {
         document.getElementById('esEdicion').value = "false";
         document.getElementById('fechaOriginal').value = "";
         document.getElementById('modoEdicionBox').style.display = 'none';
         const btn = document.getElementById('btnEnviar');
-        btn.innerText = "CONFIRMAR REGISTRO";
-        btn.style.background = "linear-gradient(135deg, #4f46e5, #6366f1)";
+        btn.innerText = "GUARDAR CITA";
+        btn.style.background = "linear-gradient(135deg, var(--primary), #6366f1)";
+        validarTodo();
     }
 
     document.getElementById('dniInput').addEventListener('input', (e) => {
@@ -688,8 +731,7 @@
 
         if (dias < 0) {
             meses--;
-            const ultimoDiaMesAnterior = new Date(cita.getFullYear(), cita.getMonth(), 0).getDate();
-            dias += ultimoDiaMesAnterior;
+            dias += new Date(cita.getFullYear(), cita.getMonth(), 0).getDate();
         }
         if (meses < 0) {
             anios--;
@@ -704,19 +746,196 @@
         document.getElementById('edadInput').value = resultado;
     }
 
-    async function descargarExcel() {
-        const desde = document.getElementById('repDesde').value;
-        const hasta = document.getElementById('repHasta').value;
-        const cons = document.getElementById('repConsultorio').value;
-        const turno = document.getElementById('repTurno').value;
+    async function cargarMonitoreoAsistencia() {
+        const desde = document.getElementById('monDesde').value;
+        const hasta = document.getElementById('monHasta').value;
+        const cons = document.getElementById('monConsultorio').value;
+        const turno = document.getElementById('monTurno').value;
+        const tbody = document.getElementById('monitorTablaBody');
 
         if (!desde || !hasta) {
-            lanzarModal("Seleccione un rango de fechas válido", "⚠️");
+            lanzarModal("Seleccione un rango de fechas válido.", "⚠️");
             return;
         }
 
-        const url = `${SCRIPT_CITAS}?exportar=true&desde=${desde}&hasta=${hasta}&cons=${cons}&turno=${turno}`;
-        lanzarModal("Procesando datos... Si no inicia la descarga automática, revisa las ventanas emergentes.", "⏳");
+        tbody.innerHTML = `<tr><td colspan="14" style="text-align:center; color:#94a3b8;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando citas...</td></tr>`;
+
+        try {
+            if (listaProfesionalesGlobal.length === 0) {
+                await cargarProfesionalesAdmin();
+            }
+
+            const url = `${SCRIPT_CITAS}?obtenerCitadosWeb=true&desde=${desde}&hasta=${hasta}&cons=${encodeURIComponent(cons)}&turno=${encodeURIComponent(turno)}`;
+            const res = await fetch(url);
+            const json = await res.json();
+
+            if (json && json.data) {
+                datasetMonitorGlobal = json.data;
+                renderizarTablaMonitor(datasetMonitorGlobal);
+            } else {
+                datasetMonitorGlobal = [];
+                tbody.innerHTML = `<tr><td colspan="14" style="text-align:center; color:#94a3b8;">No se encontraron citas en este rango.</td></tr>`;
+            }
+        } catch (e) {
+            console.error(e);
+            tbody.innerHTML = `<tr><td colspan="14" style="text-align:center; color:#ef4444;">Error al cargar datos del monitoreo.</td></tr>`;
+        }
+    }
+
+    function renderizarTablaMonitor(lista) {
+        const tbody = document.getElementById('monitorTablaBody');
+        const txtBuscar = document.getElementById('monBuscarTexto').value.toLowerCase().trim();
+
+        const listaFiltrada = lista.filter(item => {
+            const dniVal = (item.DNI || item.dni || "").toString().toLowerCase();
+            const nomVal = (item.NOMBRE || item.nombre || "").toString().toLowerCase();
+            return !txtBuscar || dniVal.includes(txtBuscar) || nomVal.includes(txtBuscar);
+        });
+
+        if (listaFiltrada.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="14" style="text-align:center; color:#94a3b8;">No hay resultados con los criterios aplicados.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        listaFiltrada.forEach(c => {
+            const dni = c.DNI || c.dni || "";
+            const nombre = c.NOMBRE || c.nombre || "";
+            const fechaCita = c.FECHA_CITA || c.fecha || "";
+            const turno = c.TURNO || c.turno || "";
+            const consultorio = c.CONSULTORIO || c.consultorio || "";
+            const fecNac = c.FECHA_NACIMIENTO || c.fecha_nacimiento || "";
+            const edad = c.EDAD || c.edad || "-";
+            const telf1 = c["TELFONO-1"] || c.celular || "";
+            const telf2 = c["TELFONO-2"] || c.celular_2 || "";
+            const hcl = c.HCL || c.hc || "";
+            const sector = c.SECTOR || c.sector || "";
+            const gps = c.GPS || c.gps || "";
+            const respAtn = c["RESPONSABLE ATENCIÓN"] || c.responsable_atencion || "";
+            
+            // Soporte robusto para leer tanto CONDICIÍON como CONDICIÓN del Excel
+            const condActual = c.CONDICIÍON || c.CONDICIÓN || c.condicion || "Asistió";
+
+            tbody.innerHTML += `
+                <tr data-dni="${dni}" data-fecha="${fechaCita}" data-consultorio="${consultorio}">
+                    <td><b>${fechaCita}</b></td>
+                    <td><b>${turno}</b></td>
+                    <td><span style="background:var(--primary-light); color:var(--primary); padding:3px 8px; border-radius:8px; font-weight:700;">${consultorio}</span></td>
+                    <td>${nombre}<br><small style="color:#64748b;">DNI: ${dni}</small></td>
+                    <td>${fecNac}</td>
+                    <td>${edad}</td>
+                    <td>${telf1}</td>
+                    <td>${telf2}</td>
+                    <td>${hcl}</td>
+                    <td>${sector}</td>
+                    <td>${gps}</td>
+                    <td>
+                        <button type="button" class="selector-trigger-btn select-profesional-btn" data-valor-seleccionado="${respAtn}" onclick="abrirSelectorProfesionalFila(this, '${dni}', '${fechaCita}', '${consultorio}')" style="padding: 6px 12px; font-size: 11px; height: 32px;">
+                            <span class="txt-prof-sel">${respAtn || "Seleccione profesional"}</span>
+                            <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--primary);"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <select class="select-asistencia">
+                            <option value="Asistió" ${condActual === 'Asistió' ? 'selected' : ''}>Asistió</option>
+                            <option value="Faltó" ${condActual === 'Faltó' ? 'selected' : ''}>Faltó</option>
+                            <option value="Reprogramó" ${condActual === 'Reprogramó' ? 'selected' : ''}>Reprogramó</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button type="button" class="btn-reprogramar-fila" onclick="prepararEdicionDesdeMonitor('${dni}', '${fechaCita}', '${turno}', '${consultorio}')">
+                            <i class="fa-solid fa-pen-to-square"></i> Reprogramar
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function filtrarTablaMonitorLocal() {
+        if (datasetMonitorGlobal.length > 0) {
+            renderizarTablaMonitor(datasetMonitorGlobal);
+        }
+    }
+
+    async function guardarCambiosAsistencia() {
+        const filas = document.querySelectorAll('#monitorTablaBody tr');
+        if (filas.length === 0 || filas[0].querySelector('td').getAttribute('colspan')) {
+            lanzarModal("No hay registros visibles para actualizar.", "⚠️");
+            return;
+        }
+
+        lanzarModal("Guardando cambios de asistencia...", "⏳");
+        let actualizados = 0;
+
+        for (let fila of filas) {
+            const dni = fila.getAttribute('data-dni');
+            const fecha = fila.getAttribute('data-fecha');
+            const consultorio = fila.getAttribute('data-consultorio');
+            const selectCond = fila.querySelector('.select-asistencia');
+            const btnProf = fila.querySelector('.select-profesional-btn');
+
+            if (dni && fecha && consultorio && selectCond) {
+                const condicion = selectCond.value;
+                const responsable = btnProf ? btnProf.dataset.valorSeleccionado : "";
+                try {
+                    // 1. Actualizar Condición mediante POST (apuntando a CONDICIÍON tal cual está en el Excel)
+                    const paramsCond = new URLSearchParams();
+                    paramsCond.append("action", "actualizarCondicion");
+                    paramsCond.append("dni", dni);
+                    paramsCond.append("fecha", fecha);
+                    paramsCond.append("consultorio", consultorio);
+                    paramsCond.append("condicion", condicion);
+                    paramsCond.append("columnaDestino", "CONDICIÍON");
+
+                    await fetch(SCRIPT_CITAS, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: paramsCond.toString()
+                    });
+
+                    // 2. Actualizar Responsable Atención mediante POST
+                    if (responsable) {
+                        const paramsResp = new URLSearchParams();
+                        paramsResp.append("action", "actualizarColumna");
+                        paramsResp.append("dni", dni);
+                        paramsResp.append("fecha", fecha);
+                        paramsResp.append("consultorio", consultorio);
+                        paramsResp.append("valor", responsable);
+                        paramsResp.append("columnaDestino", "RESPONSABLE ATENCIÓN");
+
+                        await fetch(SCRIPT_CITAS, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: paramsResp.toString()
+                        });
+                    }
+
+                    actualizados++;
+                } catch (e) {
+                    console.error("Error actualizando DNI: " + dni, e);
+                }
+            }
+        }
+
+        lanzarModal(`¡Se actualizaron correctamente ${actualizados} registros!`, "✅");
+        // Refrescar únicamente la tabla de monitoreo sin recargar toda la página completa
+        setTimeout(() => { cerrarModal(); cargarMonitoreoAsistencia(); }, 1500);
+    }
+
+    async function descargarExcelMonitor() {
+        const desde = document.getElementById('monDesde').value;
+        const hasta = document.getElementById('monHasta').value;
+        const cons = document.getElementById('monConsultorio').value;
+        const turno = document.getElementById('monTurno').value;
+
+        if (!desde || !hasta) {
+            lanzarModal("Seleccione un rango de fechas válido.", "⚠️");
+            return;
+        }
+
+        const url = `${SCRIPT_CITAS}?exportar=true&desde=${desde}&hasta=${hasta}&cons=${encodeURIComponent(cons)}&turno=${encodeURIComponent(turno)}`;
+        lanzarModal("Generando reporte Excel...", "⏳");
 
         try {
             const response = await fetch(url);
@@ -731,12 +950,11 @@
                     for (let i = 0; i < caracteresBinarios.length; i++) {
                         numerosBinarios[i] = caracteresBinarios.charCodeAt(i);
                     }
-                    const matrizBytes = new Uint8Array(numerosBinarios);
-                    const blobXlsx = new Blob([matrizBytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    const blobXlsx = new Blob([new Uint8Array(numerosBinarios)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                     
                     const linkDescarga = document.createElement('a');
                     linkDescarga.href = URL.createObjectURL(blobXlsx);
-                    linkDescarga.setAttribute('download', respuestaJson.archivoNombre || 'Reporte_Citados.xlsx');
+                    linkDescarga.setAttribute('download', respuestaJson.archivoNombre || 'Monitoreo_Citados.xlsx');
                     document.body.appendChild(linkDescarga);
                     linkDescarga.click();
                     document.body.removeChild(linkDescarga);
@@ -747,9 +965,7 @@
                 window.open(url, '_blank');
                 cerrarModal();
             }
-
         } catch (err) {
-            console.error(err);
             window.open(url, '_blank');
             cerrarModal();
         }
@@ -759,42 +975,86 @@
         const fecha = document.getElementById('citaInput').value;
         const turno = document.getElementById('turnoInput').value;
         const cons = document.getElementById('consInput').value;
+        const dni = document.getElementById('dniInput').value.trim();
         const btn = document.getElementById('btnEnviar');
         const checkAdi = document.getElementById('checkAdicional');
         const esEdit = document.getElementById('esEdicion').value === "true";
+        const fechaOrig = document.getElementById('fechaOriginal').value;
         
-        if(!fecha) return;
-
-        const dia = new Date(fecha + 'T00:00:00').getDay();
-        if(dia === 0) { lanzarModal("Domingos no hay atención", "❌"); document.getElementById('citaInput').value=""; return; }
-        if(dia === 6 && turno === "TARDE") { lanzarModal("Sábados solo turno Mañana", "⚠️"); document.getElementById('turnoInput').value="MAÑANA"; return; }
+        if(!fecha || !cons) return;
 
         const fLatino = aLatino(fecha);
-        const r = await fetch(`${SCRIPT_CITAS}?validarCupo=true&fecha=${fLatino}&turno=${turno}&consultorio=${cons}`);
-        const d = await r.json();
-        
-        const limite = (turno === "MAÑANA") ? 18 : 6;
+
+        // 1. Consultar ocupación actual y verificación de duplicado del paciente en SCRIPT_CITAS
+        let urlValidacion = `${SCRIPT_CITAS}?validarCupo=true&fecha=${fLatino}&turno=${turno}&consultorio=${encodeURIComponent(cons)}`;
+        if(dni.length === 8) {
+            urlValidacion += `&dni=${dni}&esEdicion=${esEdit}&fechaOriginal=${encodeURIComponent(fechaOrig)}`;
+        }
+
+        const rCitas = await fetch(urlValidacion);
+        const dCitas = await rCitas.json();
+        const ocupadosActuales = (dCitas && dCitas.ocupados !== undefined) ? dCitas.ocupados : 0;
+        const pacienteDuplicado = dCitas && dCitas.duplicado === true;
+
+        let limiteMax = 0;
+        let tieneTopePersonalizado = false;
+
+        // 2. Consultar si existe un tope personalizado en SCRIPT_ADMIN
+        try {
+            const rAdmin = await fetch(`${SCRIPT_ADMIN}?getTopes=true`);
+            const dAdmin = await rAdmin.json();
+            
+            if (dAdmin && dAdmin.topes && Array.isArray(dAdmin.topes)) {
+                const topeEncontrado = dAdmin.topes.find(t => {
+                    const fMatch = (t.fecha === fecha);
+                    const cMatch = (t.consultorio || "").toUpperCase().trim() === cons.toUpperCase().trim();
+                    const tMatch = (t.turno || "").toUpperCase().trim() === turno.toUpperCase().trim();
+                    return fMatch && cMatch && tMatch;
+                });
+
+                if (topeEncontrado && !isNaN(topeEncontrado.cantidad) && topeEncontrado.cantidad !== null && topeEncontrado.cantidad !== "") {
+                    limiteMax = Number(topeEncontrado.cantidad);
+                    tieneTopePersonalizado = true;
+                }
+            }
+        } catch (e) {
+            console.warn("No se pudo obtener el tope desde SCRIPT_ADMIN:", e);
+        }
+
         const infoDiv = document.getElementById('infoCitas');
         const textoContador = document.getElementById('textoContador');
         infoDiv.style.display = 'flex';
-        textoContador.innerText = `Hay ${d.ocupados} citas reservadas para esta fecha en el turno ${turno}.`;
 
-        if (d.ocupados >= limite) {
-            document.getElementById('boxAdicional').style.display = 'block';
-            if (!checkAdi.checked) {
-                btn.disabled = true; btn.innerText = "MARQUE EL CHECK DE ADICIONAL";
+        // Ocultar opción de adicional permanentemente
+        document.getElementById('boxAdicional').style.display = 'none';
+        if(checkAdi) checkAdi.checked = false;
+
+        // 3. Reglas de negocio: Validación de paciente duplicado, programación y cupos máximos
+        if (pacienteDuplicado) {
+            textoContador.innerHTML = `<b style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> EL PACIENTE YA TIENE CITA EN EL SERVICIO PARA LA FECHA Y TURNO.</b>`;
+            btn.disabled = true;
+            btn.innerText = "PACIENTE YA CITADO EN ESTE TURNO";
+            btn.style.background = "#94a3b8";
+        } else if (!tieneTopePersonalizado) {
+            textoContador.innerHTML = `<b style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> NO HAY PROGRAMACIÓN CONFIGURADA PARA ESTA FECHA Y TURNO.</b>`;
+            btn.disabled = true;
+            btn.innerText = "NO HAY PROGRAMACIÓN DISPONIBLE";
+            btn.style.background = "#94a3b8";
+        } else {
+            textoContador.innerText = `Hay ${ocupadosActuales} de ${limiteMax} citas reservadas para esta fecha en el turno ${turno}.`;
+
+            if (ocupadosActuales >= limiteMax) {
+                // Bloquear por completo si se llenaron los cupos (Sin adicionales)
+                btn.disabled = true;
+                btn.innerText = "CUPOS LLENOS";
                 btn.style.background = "#94a3b8";
             } else {
                 btn.disabled = false;
-                btn.innerText = esEdit ? "REPROGRAMAR COMO ADICIONAL" : "REGISTRAR COMO ADICIONAL";
-                btn.style.background = "linear-gradient(135deg, var(--warning), #f59e0b)";
+                btn.innerText = esEdit ? "REPROGRAMAR / ACTUALIZAR CITA" : "GUARDAR CITA"; 
+                btn.style.background = esEdit ? "linear-gradient(135deg, var(--warning), #f59e0b)" : "linear-gradient(135deg, #4f46e5, #6366f1)";
             }
-        } else {
-            document.getElementById('boxAdicional').style.display = 'none';
-            checkAdi.checked = false; btn.disabled = false;
-            btn.innerText = esEdit ? "REPROGRAMAR / ACTUALIZAR CITA" : "CONFIRMAR REGISTRO"; 
-            btn.style.background = esEdit ? "linear-gradient(135deg, var(--warning), #f59e0b)" : "linear-gradient(135deg, #4f46e5, #6366f1)";
         }
+        
         calcularEdadCita();
     };
 
@@ -813,6 +1073,7 @@
         const btn = document.getElementById('btnEnviar');
         const dni = document.getElementById('dniInput').value;
         const tel = document.getElementById('telInput').value;
+        const tel2 = document.getElementById('tel2Input').value;
         const esEdit = document.getElementById('esEdicion').value === "true";
 
         btn.disabled = true; btn.innerText = esEdit ? "ACTUALIZANDO..." : "REGISTRANDO...";
@@ -826,11 +1087,15 @@
             params.append(key, value);
         }
         params.append("ALERTA_ANEMIA", globalAnemia);
-        params.append("ALERTA_INASISTENCIA", globalInasistencias);
 
         try {
-            const urlUpdate = `${SCRIPT_CENSO}?action=actualizarTel&dni=${dni}&telefono=${tel}`;
-            fetch(urlUpdate, { mode: 'no-cors' }); 
+            const urlUpdateTel = `${SCRIPT_CENSO}?action=actualizarTel&dni=${dni}&telefono=${tel}`;
+            fetch(urlUpdateTel, { mode: 'no-cors' });
+
+            if (tel2) {
+                const urlUpdateTel2 = `${SCRIPT_CENSO}?action=actualizarColumna&dni=${dni}&columna=TELEFONO-2&valor=${encodeURIComponent(tel2)}`;
+                fetch(urlUpdateTel2, { mode: 'no-cors' });
+            }
 
             const response = await fetch(SCRIPT_CITAS, { 
                 method: 'POST', 
@@ -839,11 +1104,7 @@
             });
             const resultText = await response.text();
 
-            if (resultText === "Success_Edit" || esEdit) {
-                lanzarModal("CITA REPROGRAMADA CORRECTAMENTE", "✅");
-            } else {
-                lanzarModal("REGISTRO Y CELULAR ACTUALIZADOS", "✅"); 
-            }
+            lanzarModal(esEdit ? "CITA REPROGRAMADA CORRECTAMENTE" : "REGISTRO Y TELÉFONOS ACTUALIZADOS", "✅");
             
             cancelarEdicion();
             setTimeout(() => location.reload(), 2000); 
@@ -852,30 +1113,9 @@
             console.error(error);
             lanzarModal("Error al procesar el registro.", "❌");
             btn.disabled = false; 
-            btn.innerText = esEdit ? "REPROGRAMAR / ACTUALIZAR CITA" : "CONFIRMAR REGISTRO";
+            btn.innerText = esEdit ? "REPROGRAMAR / ACTUALIZAR CITA" : "GUARDAR CITA";
         }
     });
-
-    function limpiarAlerta() {
-        document.getElementById('alertInasistencia').style.display = 'none';
-        document.getElementById('anemiaDetails').style.display = 'none';
-        document.getElementById('boxHistorial').style.display = 'none';
-        document.getElementById('finalAviso').value = "";
-        globalAnemia = "NO"; globalInasistencias = "NINGUNA";
-    }
-
-    function abrirModuloAdmin() {
-        if(prompt("Clave de Acceso:") === "2026_DIT@") {
-            const s = document.getElementById('consInput');
-            ["NUTRICIÓN", "ODONTOLOGÍA", "PSICOLOGÍA"].forEach(e => {
-                let existe = Array.from(s.options).some(opt => opt.value === e);
-                if(!existe){
-                    let o = document.createElement("option"); o.value = e; o.text = "🏥 " + e; s.add(o);
-                }
-            });
-            lanzarModal("Especialidades activadas.", "⚙️");
-        }
-    }
 </script>
 </body>
 </html>
